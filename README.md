@@ -1,6 +1,6 @@
 # create-fullstack-app
 
-Interactive CLI that scaffolds modern full-stack projects: pick your structure, frameworks, data layer, auth, DevOps, and optional AI hooks—then get a working repo with sensible defaults.
+Interactive CLI that scaffolds modern full-stack projects: pick your structure, frameworks, data layer, auth, DevOps, and optional AI hooks, then get a working repo with sensible defaults.
 
 ## Quick start
 
@@ -54,6 +54,12 @@ If a directory with the chosen project name already exists, the CLI offers to **
 
 Use a current **Node.js** LTS or Current release (the CLI and generated stacks expect modern Node features).
 
+## Links
+
+- **Developer:** [Devesh Maurya](https://devesh-maurya-portfolio.vercel.app/)
+- **Dartix:** [dartix.live](https://www.dartix.live/)
+- **Blog (internals, git, npm releases):** [create-fullstack-app write-up](https://devesh-maurya-portfolio.vercel.app/blog/building-create-fullstack-app-cli)
+
 ## Changelog
 
 ### 0.1.1
@@ -73,4 +79,4 @@ MIT
 
 ---
 
-Published as [`@dartix-software-solutions/create-fullstack-app`](https://www.npmjs.com/package/@dartix-software-solutions/create-fullstack-app) by Dartix.
+Package on npm: [`@dartix-software-solutions/create-fullstack-app`](https://www.npmjs.com/package/@dartix-software-solutions/create-fullstack-app) · [Developer](https://devesh-maurya-portfolio.vercel.app/) · [Dartix](https://www.dartix.live/)
