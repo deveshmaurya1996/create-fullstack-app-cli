@@ -67,15 +67,6 @@ Use a current **Node.js** LTS or Current release (the CLI and generated stacks e
 
 - Initial public release of the interactive full-stack scaffolding CLI.
 
-## Releasing (maintainers)
-
-Releases are published via GitHub Actions when you push a tag `vX.Y.Z` that matches `"version"` in `package.json`. Configure a repository secret **`NPM_TOKEN`** (npm automation token with publish access). Then:
-
-```bash
-npm version patch   # or minor / major
-git push origin main --follow-tags
-```
-
 ## License
 
 MIT
