@@ -21,6 +21,17 @@ jobs:
         with:
           node-version: "20"
           registry-url: https://registry.npmjs.org/
+          # Required so npm associates the token with this scope (otherwise publish can ENEEDAUTH).
+          scope: "@dartix-software-solutions"
+
+      - name: Ensure NPM_TOKEN secret is set
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::error::Add repository secret NPM_TOKEN (npm automation token with publish access) under Settings → Secrets and variables → Actions."
+            exit 1
+          fi
 
       - name: Verify tag matches package.json version
         run: |
