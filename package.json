@@ -28,6 +28,7 @@
     "zx": "^7.2.4"
   },
   "devDependencies": {
+    "@types/inquirer": "^9.0.9",
     "@types/node": "^20.19.39",
     "tsx": "^4",
     "typescript": "^5"
