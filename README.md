@@ -54,6 +54,28 @@ If a directory with the chosen project name already exists, the CLI offers to **
 
 Use a current **Node.js** LTS or Current release (the CLI and generated stacks expect modern Node features).
 
+## Changelog
+
+### 0.1.1
+
+- Documentation: full npm README (install, features, usage).
+- Packaging: `README.md` listed in `package.json` `files` so it is always included in the published tarball.
+- Repo: root `.gitignore` for Node/TypeScript builds.
+- CI: GitHub Action to publish to npm on version tags (`v*`), with a check that the git tag matches `package.json` `version`.
+
+### 0.1.0
+
+- Initial public release of the interactive full-stack scaffolding CLI.
+
+## Releasing (maintainers)
+
+Releases are published via GitHub Actions when you push a tag `vX.Y.Z` that matches `"version"` in `package.json`. Configure a repository secret **`NPM_TOKEN`** (npm automation token with publish access). Then:
+
+```bash
+npm version patch   # or minor / major
+git push origin main --follow-tags
+```
+
 ## License
 
 MIT

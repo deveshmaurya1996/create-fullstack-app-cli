@@ -1,13 +1,14 @@
 {
   "name": "@dartix-software-solutions/create-fullstack-app",
-  "version": "0.1.0",
-  "description": "Modern fullstack app generator",
+  "version": "0.1.1",
+  "description": "Interactive CLI to scaffold full-stack apps (web, mobile, API, monorepos, Docker, auth, and more).",
   "bin": {
     "create-fullstack-app": "dist/index.js"
   },
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "build": "tsc",
