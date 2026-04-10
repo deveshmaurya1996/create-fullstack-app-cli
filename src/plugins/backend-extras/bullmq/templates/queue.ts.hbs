@@ -1,0 +1,10 @@
+import { Queue, Worker } from 'bullmq';
+import IORedis from 'ioredis';
+
+const connection = new IORedis(process.env.REDIS_URL || 'redis://localhost:6379');
+
+export const emailQueue = new Queue('email', { connection });
+
+export function createEmailWorker(processor: Parameters<typeof Worker>[1]) {
+  return new Worker('email', processor, { connection });
+}

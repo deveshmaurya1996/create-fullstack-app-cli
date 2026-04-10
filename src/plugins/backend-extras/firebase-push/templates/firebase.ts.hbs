@@ -1,0 +1,17 @@
+import admin from 'firebase-admin';
+
+let initialized = false;
+
+export function initFirebase(): void {
+  if (initialized) return;
+  initialized = true;
+
+  const raw = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+  if (!raw) throw new Error('FIREBASE_SERVICE_ACCOUNT_JSON is not set');
+
+  admin.initializeApp({
+    credential: admin.credential.cert(JSON.parse(raw)),
+  });
+}
+
+export { admin };

@@ -1,0 +1,17 @@
+<script setup lang="ts">
+import Navbar from './Navbar.vue';
+</script>
+
+<template>
+  <div class="layout">
+    <Navbar />
+    <main class="content">
+      <slot />
+    </main>
+  </div>
+</template>
+
+<style scoped>
+.layout { min-height: 100vh; }
+.content { padding: 1rem 1.5rem; }
+</style>

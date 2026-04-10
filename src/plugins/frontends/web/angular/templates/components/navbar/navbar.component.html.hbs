@@ -1,0 +1,13 @@
+<nav style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; padding: 0.75rem 0; border-bottom: 1px solid #e5e5e5;">
+  <strong><a routerLink="/">{{projectName}}</a></strong>
+  <a routerLink="/">Home</a>
+  <a routerLink="/about">About</a>
+{{#if hasAuth}}
+  @if (auth.isAuthenticated()) {
+    <a routerLink="/dashboard">Dashboard</a>
+    <button type="button" (click)="logout()">Log out</button>
+  } @else {
+    <a routerLink="/login">Log in</a>
+  }
+{{/if}}
+</nav>

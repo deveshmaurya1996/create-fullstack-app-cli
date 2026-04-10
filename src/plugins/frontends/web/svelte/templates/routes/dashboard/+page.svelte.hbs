@@ -1,0 +1,22 @@
+<script lang="ts">
+  import { goto } from '$app/navigation';
+  import { useAuth } from '$lib/utils';
+
+  const auth = useAuth();
+
+  if (!auth.isAuthenticated()) {
+    goto('/login');
+  }
+
+  function signOut() {
+    auth.logout();
+    goto('/');
+  }
+</script>
+
+<section>
+  <h1>Dashboard</h1>
+  <p>You are signed in.</p>
+  <pre>{auth.token()}</pre>
+  <button type="button" on:click={signOut}>Sign out</button>
+</section>

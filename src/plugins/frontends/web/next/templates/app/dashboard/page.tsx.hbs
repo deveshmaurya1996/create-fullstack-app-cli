@@ -1,0 +1,30 @@
+import { cookies } from 'next/headers';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+
+async function signOut() {
+  'use server';
+  (await cookies()).delete('auth_token');
+  redirect('/');
+}
+
+export default async function DashboardPage() {
+  const token = (await cookies()).get('auth_token');
+  if (!token) {
+    redirect('/login');
+  }
+
+  return (
+    <div>
+      <h1>Dashboard</h1>
+      <p>You are signed in.</p>
+      <pre style={{ fontSize: 12 }}>{decodeURIComponent(token.value)}</pre>
+      <form action={signOut}>
+        <button type="submit">Sign out</button>
+      </form>
+      <p>
+        <Link href="/">Home</Link>
+      </p>
+    </div>
+  );
+}

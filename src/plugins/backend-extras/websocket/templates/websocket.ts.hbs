@@ -1,0 +1,14 @@
+import { WebSocketServer, type WebSocket } from 'ws';
+import { handleChatMessage } from '../events/chat';
+
+export function createWebSocketServer(server: import('http').Server): WebSocketServer {
+  const wss = new WebSocketServer({ server });
+
+  wss.on('connection', (socket: WebSocket) => {
+    socket.on('message', (raw) => {
+      handleChatMessage(socket, raw.toString());
+    });
+  });
+
+  return wss;
+}

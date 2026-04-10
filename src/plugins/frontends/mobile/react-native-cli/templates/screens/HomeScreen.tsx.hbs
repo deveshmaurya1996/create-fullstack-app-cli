@@ -1,0 +1,76 @@
+import { Text, StyleSheet } from 'react-native';
+import { Screen } from '../components/Screen';
+import { Card } from '../components/Card';
+import { APP_NAME } from '../constants';
+{{#if hasAuth}}
+import { CommonActions } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import { Button } from '../components/Button';
+import { useAuth } from '../hooks/useAuth';
+
+function SignOutRow() {
+  const { logout } = useAuth();
+  const navigation = useNavigation();
+  return (
+    <Button
+      title="Log out"
+      onPress={() => {
+        void (async () => {
+          await logout();
+          const root = navigation.getParent()?.getParent();
+          root?.dispatch(
+            CommonActions.reset({
+              index: 0,
+              routes: [{ name: 'Login' as never }],
+            })
+          );
+        })();
+      }}
+      style={{ marginTop: 16 }}
+    />
+  );
+}
+{{/if}}
+{{#if hasBackend}}
+import { useEffect } from 'react';
+import { useApi } from '../hooks/useApi';
+import { apiUrl } from '../lib/config';
+
+function HealthProbe() {
+  const { get, loading, error } = useApi();
+  useEffect(() => {
+    void get<{ status?: string }>('/health');
+  }, [get]);
+  return (
+    <>
+      {loading ? <Text style={styles.muted}>Checking API…</Text> : null}
+      {error ? <Text style={styles.err}>{error}</Text> : null}
+      <Text style={styles.muted}>API: {apiUrl}</Text>
+    </>
+  );
+}
+{{/if}}
+
+export default function HomeScreen() {
+  return (
+    <Screen scroll>
+      <Text style={styles.h1}>Welcome</Text>
+      <Card title={APP_NAME}>
+        <Text style={styles.p}>Your React Native app is running.</Text>
+{{#if hasBackend}}
+        <HealthProbe />
+{{/if}}
+      </Card>
+{{#if hasAuth}}
+      <SignOutRow />
+{{/if}}
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  h1: { fontSize: 28, fontWeight: '700', marginBottom: 16 },
+  p: { fontSize: 16, lineHeight: 22 },
+  muted: { marginTop: 8, color: '#71717a', fontSize: 13 },
+  err: { color: '#b91c1c', marginTop: 8 },
+});

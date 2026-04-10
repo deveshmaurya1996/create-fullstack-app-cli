@@ -1,0 +1,17 @@
+export type TabParamList = {
+  Home: undefined;
+  Profile: undefined;
+  Settings: undefined;
+};
+
+{{#if hasAuth}}
+export type RootStackParamList = {
+  MainTabs: undefined;
+  Login: undefined;
+  Register: undefined;
+};
+{{else}}
+export type RootStackParamList = {
+  MainTabs: undefined;
+};
+{{/if}}

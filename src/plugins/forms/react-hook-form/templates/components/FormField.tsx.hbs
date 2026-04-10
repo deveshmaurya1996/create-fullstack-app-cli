@@ -1,0 +1,23 @@
+import type { FieldError, UseFormRegisterReturn } from 'react-hook-form';
+
+interface FormFieldProps {
+  label: string;
+  registration: UseFormRegisterReturn;
+  error?: FieldError;
+  type?: 'text' | 'email' | 'password';
+}
+
+export function FormField({
+  label,
+  registration,
+  error,
+  type = 'text',
+}: FormFieldProps): JSX.Element {
+  return (
+    <div style={{ display: 'grid', gap: 6 }}>
+      <label>{label}</label>
+      <input type={type} {...registration} />
+      {error ? <small style={{ color: 'crimson' }}>{error.message}</small> : null}
+    </div>
+  );
+}

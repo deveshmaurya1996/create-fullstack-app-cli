@@ -1,251 +1,168 @@
+import type { WizardDraft, PluginCategory } from '../shared/types.js';
+import type { PromptChoice } from './types.js';
+import { pluginRegistry } from '../plugins/registry.js';
+import { PLUGIN_CATEGORIES, SCOPES } from '../shared/constants.js';
 
-import type { BackendChoice, BackendUtilityChoice, OrmChoice } from "../setup/types.js";
+export const staticChoices: Record<string, PromptChoice[]> = {
+  structure: [
+    { value: 'single-app', label: 'Single App', description: 'One application, one repository' },
+    { value: 'monorepo', label: 'Monorepo', description: 'Multiple packages in one repository' },
+    { value: 'microservices', label: 'Microservices', description: 'Distributed services architecture' },
+  ],
 
-export const PROJECT_STRUCTURES = [
-  "Monorepo (apps + packages)",
-  "Single app",
-  "Microservices (multiple backend services)",
-] as const;
+  scope: [
+    { value: 'frontend-only', label: 'Frontend Only', description: 'Client-side application' },
+    { value: 'backend-only', label: 'Backend Only', description: 'Server / API only' },
+    { value: 'fullstack', label: 'Full Stack', description: 'Frontend + Backend' },
+  ],
 
-export const SINGLE_APP_SCOPES = [
-  "Full stack (frontend + backend)",
-  "Frontend only",
-  "Backend only",
-] as const;
+  projectType: [
+    { value: 'saas', label: 'SaaS', description: 'Software as a service product' },
+    { value: 'admin', label: 'Admin Dashboard', description: 'Internal admin panel' },
+    { value: 'ecommerce', label: 'E-commerce', description: 'Online store' },
+    { value: 'api-only', label: 'API Only', description: 'REST/GraphQL API service' },
+    { value: 'mobile-app', label: 'Mobile App', description: 'Mobile application with backend' },
+    { value: 'landing-page', label: 'Landing Page', description: 'Marketing landing page' },
+    { value: 'blog', label: 'Blog', description: 'Blog or content site' },
+  ],
 
-export const MONOREPO_TOOLS = ["Turborepo", "Nx", "None (basic workspace)"] as const;
+  monorepoTool: [
+    { value: 'turborepo', label: 'Turborepo', description: 'Fast, incremental builds' },
+    { value: 'nx', label: 'Nx', description: 'Smart, extensible build framework' },
+    { value: 'pnpm-workspaces', label: 'pnpm Workspaces', description: 'Simple workspace management' },
+  ],
 
-export const PROJECT_TYPES = [
-  "SaaS app",
-  "API only",
-  "Admin dashboard",
-  "Mobile app",
-  "Full product (web + api)",
-] as const;
+  packageManager: [
+    { value: 'pnpm', label: 'pnpm', description: 'Fast, disk space efficient' },
+    { value: 'npm', label: 'npm', description: 'Default Node.js package manager' },
+    { value: 'yarn', label: 'yarn', description: 'Classic yarn package manager' },
+    { value: 'bun', label: 'bun', description: 'All-in-one JavaScript runtime' },
+  ],
 
-export const PACKAGE_MANAGERS = ["npm", "pnpm", "yarn", "bun"] as const;
+  platform: [
+    { value: 'web', label: 'Web', description: 'Browser-based application' },
+    { value: 'mobile', label: 'Mobile', description: 'iOS / Android application' },
+    { value: 'both', label: 'Both (Web + Mobile)', description: 'Web and mobile applications' },
+  ],
 
-export const WEB_FRAMEWORKS = [
-  "Next.js",
-  "Vite (React)",
-  "Remix",
-  "Astro",
-  "SvelteKit",
-  "Vue (Vite)",
-  "None",
-] as const;
+  apiStyle: [
+    { value: 'rest', label: 'REST', description: 'RESTful API endpoints' },
+    { value: 'graphql', label: 'GraphQL', description: 'Query language for APIs' },
+    { value: 'trpc', label: 'tRPC', description: 'End-to-end typesafe APIs' },
+  ],
 
-export const MOBILE_FRAMEWORKS = [
-  "Expo (React Native)",
-  "React Native (CLI)",
-  "Flutter",
-  "None",
-] as const;
+  backendTs: [
+    { value: 'yes', label: 'Yes', description: 'TypeScript for type safety' },
+    { value: 'no', label: 'No', description: 'Plain JavaScript' },
+  ],
 
-export const FRONTEND_PLATFORMS = ["Web", "Mobile"] as const;
+  redis: [
+    { value: 'yes', label: 'Yes', description: 'In-memory data store for caching' },
+    { value: 'no', label: 'No', description: 'Skip Redis' },
+  ],
+};
 
-export const FRONTEND_STYLING = [
-  "Tailwind CSS",
-  "Shadcn UI",
-  "Material UI",
-  "Chakra UI",
-  "Ant Design",
-  "Styled Components",
-  "Vanilla CSS",
-] as const;
+// ─── Dynamic Choices (from Plugin Registry) ──────────────────
 
-export const STATE_DATA = ["React Query", "Zustand", "Redux Toolkit", "Jotai", "MobX", "None"] as const;
+export function getPluginChoices(
+  category: PluginCategory,
+  draft: WizardDraft
+): PromptChoice[] {
+  const plugins = pluginRegistry.getVisiblePlugins(category, draft);
 
-export const STATE_DATA_EXPO_LABELS = [
-  {
-    name: "TanStack Query (React Query) — server/async state (works in Expo)",
-    value: "React Query",
-  },
-  { name: "Zustand — lightweight store (works in Expo)", value: "Zustand" },
-  { name: "Redux Toolkit — app-wide state (works in Expo)", value: "Redux Toolkit" },
-  { name: "Jotai — atomic state (works in Expo)", value: "Jotai" },
-  { name: "MobX — observable state (works in Expo)", value: "MobX" },
-  { name: "None — React state only", value: "None" },
-] as const satisfies ReadonlyArray<{ name: string; value: (typeof STATE_DATA)[number] }>;
-
-export const FRONTEND_FORMS = ["React Hook Form", "Formik", "None"] as const;
-
-export const FRONTEND_FORMS_EXPO_LABELS = [
-  { name: "React Hook Form — common with RN (works in Expo)", value: "React Hook Form" },
-  { name: "Formik — alternative (works in Expo)", value: "Formik" },
-  { name: "None", value: "None" },
-] as const satisfies ReadonlyArray<{ name: string; value: (typeof FRONTEND_FORMS)[number] }>;
-
-export const API_CLIENTS = ["Axios", "Fetch", "tRPC client", "GraphQL client (Apollo)"] as const;
-
-export const API_CLIENTS_EXPO_LABELS = [
-  { name: "Axios — HTTP client (common in React Native)", value: "Axios" },
-  { name: "Fetch — built-in (no extra dependency)", value: "Fetch" },
-  { name: "tRPC client — type-safe with your API", value: "tRPC client" },
-  {
-    name: "GraphQL client (Apollo) — GraphQL from Expo",
-    value: "GraphQL client (Apollo)",
-  },
-] as const satisfies ReadonlyArray<{ name: string; value: (typeof API_CLIENTS)[number] }>;
-
-export const FRONTEND_EXTRAS = [
-  "React Charts",
-  "TanStack Table",
-  "Framer Motion",
-  "Date-fns",
-  "React Icons",
-] as const;
-
-export const BACKENDS = [
-  "NestJS",
-  "Express",
-  "Fastify",
-  "FastAPI",
-  "Hono (Edge)",
-  "Koa",
-  "Django (Python)",
-  "Spring Boot (Java)",
-] as const;
-
-export const API_TYPES = ["REST", "tRPC", "GraphQL (Apollo)", "gRPC"] as const;
-
-export const BACKEND_UTILITIES_NODE = [
-  "Zod (validation)",
-  "class-validator (Nest)",
-  "Swagger (API docs)",
-  "Rate limiting",
-  "CORS",
-  "Helmet (security)",
-] as const;
-
-export const BACKEND_UTILITIES_FASTAPI = ["python-multipart", "slowapi (rate limit)"] as const;
-
-export const BACKEND_UTILITIES_DJANGO = ["django-cors-headers", "drf-spectacular (OpenAPI)"] as const;
-
-export const BACKEND_UTILITIES_SPRING = ["Swagger (API docs)", "Rate limiting", "CORS"] as const;
-
-export const BACKEND_UTILITIES = BACKEND_UTILITIES_NODE;
-
-export function getBackendUtilitiesForBackend(backend: BackendChoice | undefined): readonly string[] {
-  if (!backend) return [...BACKEND_UTILITIES_NODE];
-  if (backend === "FastAPI") return [...BACKEND_UTILITIES_FASTAPI];
-  if (backend === "Django (Python)") return [...BACKEND_UTILITIES_DJANGO];
-  if (backend === "Spring Boot (Java)") return [...BACKEND_UTILITIES_SPRING];
-  return [...BACKEND_UTILITIES_NODE];
+  return plugins.map((plugin) => ({
+    value: plugin.meta.id,
+    label: plugin.meta.label,
+    description: plugin.meta.description,
+  }));
 }
 
-export const DATABASES = ["PostgreSQL", "MySQL", "MongoDB", "SQLite", "Redis (cache)", "None"] as const;
+export function getChoicesForPrompt(
+  promptId: string,
+  draft: WizardDraft
+): PromptChoice[] {
+  const choiceMap: Record<string, () => PromptChoice[]> = {
+    structure: () => staticChoices.structure,
+    scope: () => filterScopeChoices(draft),
+    projectType: () => filterProjectTypeChoices(draft),
+    monorepoTool: () => staticChoices.monorepoTool,
+    packageManager: () => staticChoices.packageManager,
+    platform: () => staticChoices.platform,
+    webFramework: () => getPluginChoices(PLUGIN_CATEGORIES.FRONTEND_WEB, draft),
+    mobileFramework: () => getPluginChoices(PLUGIN_CATEGORIES.FRONTEND_MOBILE, draft),
+    webStyling: () => getPluginChoices(PLUGIN_CATEGORIES.STYLING_WEB, draft),
+    mobileStyling: () => getPluginChoices(PLUGIN_CATEGORIES.STYLING_MOBILE, draft),
+    stateManagement: () => getPluginChoices(PLUGIN_CATEGORIES.STATE, draft),
+    formLibrary: () => addNoneOption(getPluginChoices(PLUGIN_CATEGORIES.FORMS, draft)),
+    uiLibrary: () => addNoneOption(getPluginChoices(PLUGIN_CATEGORIES.UI_LIBRARY, draft)),
+    apiClient: () => getPluginChoices(PLUGIN_CATEGORIES.API_CLIENT, draft),
+    mobileNavigation: () => getPluginChoices(PLUGIN_CATEGORIES.MOBILE_NAVIGATION, draft),
+    frontendExtras: () => getPluginChoices(PLUGIN_CATEGORIES.FRONTEND_EXTRAS, draft),
+    backendFramework: () => getPluginChoices(PLUGIN_CATEGORIES.BACKEND, draft),
+    backendTs: () => staticChoices.backendTs,
+    apiStyle: () => filterApiStyleChoices(draft),
+    database: () => addNoneOption(getPluginChoices(PLUGIN_CATEGORIES.DATABASE, draft)),
+    orm: () => addNoneOption(getPluginChoices(PLUGIN_CATEGORIES.ORM, draft)),
+    redis: () => staticChoices.redis,
+    backendExtras: () => getPluginChoices(PLUGIN_CATEGORIES.BACKEND_EXTRAS, draft),
+    auth: () => addNoneOption(getPluginChoices(PLUGIN_CATEGORIES.AUTH, draft)),
+    testing: () => getPluginChoices(PLUGIN_CATEGORIES.TESTING, draft),
+    logging: () => addNoneOption(getPluginChoices(PLUGIN_CATEGORIES.LOGGING, draft)),
+    monitoring: () => addNoneOption(getPluginChoices(PLUGIN_CATEGORIES.MONITORING, draft)),
+    devtools: () => getPluginChoices(PLUGIN_CATEGORIES.DEVTOOLS, draft),
+    devops: () => getPluginChoices(PLUGIN_CATEGORIES.DEVOPS, draft),
+    deployment: () => addNoneOption(getPluginChoices(PLUGIN_CATEGORIES.DEPLOYMENT, draft)),
+  };
 
-export const ORMS_NODE = ["Prisma", "Drizzle", "TypeORM", "Mongoose", "None"] as const;
-
-export const ORMS_FASTAPI = [
-  "SQLModel",
-  "SQLAlchemy",
-  "Tortoise ORM",
-  "Beanie (Mongo)",
-  "None",
-] as const;
-
-export const ORMS_DJANGO = ["Django ORM (built-in)", "None"] as const;
-
-export const ORMS_SPRING = ["Spring Data JPA", "None"] as const;
-
-export const ORMS = ORMS_NODE;
-
-export function getOrmChoicesForBackend(backend: BackendChoice | undefined): readonly string[] {
-  if (!backend) return [...ORMS_NODE];
-  if (backend === "FastAPI") return [...ORMS_FASTAPI];
-  if (backend === "Django (Python)") return [...ORMS_DJANGO];
-  if (backend === "Spring Boot (Java)") return [...ORMS_SPRING];
-  return [...ORMS_NODE];
+  const getter = choiceMap[promptId];
+  if (!getter) return [];
+  return getter();
 }
 
-export const API_TYPES_PYTHON = ["REST", "GraphQL (Strawberry)", "gRPC"] as const;
+// ─── Choice Filters ──────────────────────────────────────────
 
-export function getApiTypesForBackend(backend: BackendChoice | undefined): readonly string[] {
-  if (backend === "FastAPI" || backend === "Django (Python)") {
-    return [...API_TYPES_PYTHON];
+function addNoneOption(choices: PromptChoice[]): PromptChoice[] {
+  return [...choices, { value: 'none', label: 'None', description: 'Skip this option' }];
+}
+
+function filterScopeChoices(_draft: WizardDraft): PromptChoice[] {
+  return staticChoices.scope;
+}
+
+function filterProjectTypeChoices(draft: WizardDraft): PromptChoice[] {
+  let choices = [...staticChoices.projectType];
+
+  if (draft.scope === SCOPES.FULLSTACK || draft.scope === SCOPES.FRONTEND_ONLY) {
+    choices = choices.filter((c) => c.value !== 'api-only');
   }
-  return [...API_TYPES];
-}
 
-export function defaultOrmForBackend(backend: BackendChoice | undefined): OrmChoice {
-  if (backend === "FastAPI") return "SQLModel";
-  if (backend === "Django (Python)") return "Django ORM (built-in)";
-  if (backend === "Spring Boot (Java)") return "Spring Data JPA";
-  return "Prisma";
-}
-
-export function defaultBackendUtilitiesForBackend(
-  backend: BackendChoice | undefined
-): BackendUtilityChoice[] {
-  if (backend === "FastAPI") return ["python-multipart"];
-  if (backend === "Django (Python)") {
-    return ["django-cors-headers", "drf-spectacular (OpenAPI)"];
+  if (draft.scope === SCOPES.BACKEND_ONLY) {
+    choices = choices.filter((c) =>
+      !['landing-page', 'mobile-app', 'blog'].includes(c.value)
+    );
   }
-  if (backend === "Spring Boot (Java)") return ["Swagger (API docs)"];
-  return ["Zod (validation)", "CORS", "Helmet (security)"];
+
+  if (draft.scope === SCOPES.BACKEND_ONLY) {
+    choices = choices.filter((c) => c.value !== 'mobile-app');
+  }
+
+  return choices;
 }
 
-export const FILE_STORAGE = ["AWS S3", "Cloudflare R2", "Local storage", "None"] as const;
+function filterApiStyleChoices(draft: WizardDraft): PromptChoice[] {
+  let choices = [...staticChoices.apiStyle];
 
-export const AUTH_METHODS = [
-  "JWT",
-  "NextAuth",
-  "Clerk",
-  "Auth0",
-  "Firebase Auth",
-  "Supabase Auth",
-  "None",
-] as const;
+  const reactBasedFrameworks = ['react-vite', 'next', 'expo', 'react-native-cli'];
+  const frontendFramework = draft.webFramework || draft.mobileFramework;
+  const isReactFrontend = frontendFramework ? reactBasedFrameworks.includes(frontendFramework) : false;
 
-export const AUTH_FEATURES = [
-  "Email/password",
-  "Google login",
-  "GitHub login",
-  "Role-based access (RBAC)",
-  "Session management",
-] as const;
+  if (!isReactFrontend || draft.backendTs === false) {
+    choices = choices.filter((c) => c.value !== 'trpc');
+  }
 
-export const DEV_TOOLS = [
-  "ESLint",
-  "Prettier",
-  "Husky (git hooks)",
-  "lint-staged",
-  "Commitlint",
-  "EditorConfig",
-] as const;
+  if (draft.backendFramework === 'django' || draft.backendFramework === 'fastapi') {
+    choices = choices.filter((c) => c.value === 'rest');
+  }
 
-export const TESTING = ["Jest", "Vitest", "Cypress (E2E)", "Playwright", "None"] as const;
-
-export const LOGGING = ["Pino", "Winston", "None"] as const;
-
-export const MONITORING = ["Sentry", "LogRocket", "None"] as const;
-
-export const DEVOPS = [
-  "Docker",
-  "Docker Compose",
-  "Kubernetes (advanced)",
-  "GitHub Actions",
-  "CI/CD pipeline",
-] as const;
-
-export const DEPLOYMENT = ["Vercel", "AWS", "DigitalOcean", "Railway", "Render", "None"] as const;
-
-export const ADVANCED_FEATURES = [
-  "Caching (Redis)",
-  "Background jobs (BullMQ)",
-  "Scheduler jobs (Agenda)",
-  "WebSockets (real-time)",
-  "Queue system",
-  "CDN setup",
-] as const;
-
-export const AI_FEATURES = [
-  "OpenAI integration",
-  "Chat system",
-  "Image processing (AI)",
-  "Vector DB (Pinecone)",
-] as const;
-
-export const SETUP_ACTIONS = ["Proceed setup", "Restart setup", "Cancel"] as const;
+  return choices;
+}

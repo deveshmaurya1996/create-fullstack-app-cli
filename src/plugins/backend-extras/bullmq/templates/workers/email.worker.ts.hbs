@@ -1,0 +1,7 @@
+import { createEmailWorker } from '../../lib/queue';
+import { sendEmail } from '../../services/email.service';
+
+createEmailWorker(async (job) => {
+  const { to, subject, html } = job.data as { to: string; subject: string; html: string };
+  await sendEmail({ to, subject, html });
+});

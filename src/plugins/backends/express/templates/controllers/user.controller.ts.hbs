@@ -1,0 +1,15 @@
+import type { Request, Response } from 'express';
+import { findUserById, listUsers } from '../services/user.service.js';
+
+export function getUsers(_req: Request, res: Response): void {
+  res.json(listUsers());
+}
+
+export function getUserById(req: Request, res: Response): void {
+  const user = findUserById(req.params.id);
+  if (!user) {
+    res.status(404).json({ message: 'User not found' });
+    return;
+  }
+  res.json(user);
+}

@@ -1,0 +1,10 @@
+import bcrypt from 'bcryptjs';
+import { signToken } from '../lib/jwt.utils';
+
+export async function login(email: string, password: string): Promise<{ token: string }> {
+  // Replace with real user lookup.
+  const hashed = await bcrypt.hash('password', 10);
+  const isValid = await bcrypt.compare(password, hashed);
+  if (!isValid) throw new Error('Invalid credentials');
+  return { token: signToken({ sub: 'user-id', email }) };
+}

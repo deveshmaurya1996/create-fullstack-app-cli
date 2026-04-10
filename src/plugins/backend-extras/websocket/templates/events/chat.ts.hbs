@@ -1,0 +1,5 @@
+import type { WebSocket } from 'ws';
+
+export function handleChatMessage(socket: WebSocket, message: string): void {
+  socket.send(JSON.stringify({ type: 'chat', message }));
+}

@@ -1,0 +1,12 @@
+from pydantic import BaseModel, EmailStr, Field
+
+
+class UserRead(BaseModel):
+    id: int = Field(..., ge=1)
+    email: EmailStr
+    name: str
+
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    name: str

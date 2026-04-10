@@ -1,0 +1,17 @@
+import { Router } from 'express';
+import { upload } from '../middleware/upload.middleware';
+
+export const uploadRouter = Router();
+
+uploadRouter.post('/upload', upload.single('file'), (req, res) => {
+  res.json({
+    ok: true,
+    file: req.file
+      ? {
+          name: req.file.originalname,
+          size: req.file.size,
+          mimeType: req.file.mimetype,
+        }
+      : null,
+  });
+});

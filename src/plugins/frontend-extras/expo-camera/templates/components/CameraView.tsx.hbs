@@ -1,0 +1,15 @@
+import { CameraView as ExpoCameraView } from 'expo-camera';
+import { View, Text } from 'react-native';
+import { useCameraPermission } from '../hooks/useCamera';
+
+export function CameraView(): JSX.Element {
+  const hasPermission = useCameraPermission();
+
+  if (!hasPermission) return <Text>No camera permission</Text>;
+
+  return (
+    <View style={{ flex: 1, minHeight: 240 }}>
+      <ExpoCameraView style={{ flex: 1 }} />
+    </View>
+  );
+}

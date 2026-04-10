@@ -1,0 +1,25 @@
+import { useMemo } from 'react';
+
+type Row = { id: string; name: string; email: string };
+
+export function SampleTable({ rows }: { rows: Row[] }): JSX.Element {
+  const data = useMemo(() => rows, [rows]);
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((row) => (
+          <tr key={row.id}>
+            <td>{row.name}</td>
+            <td>{row.email}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}

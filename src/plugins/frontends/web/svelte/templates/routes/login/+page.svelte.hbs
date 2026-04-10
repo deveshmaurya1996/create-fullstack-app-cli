@@ -1,0 +1,29 @@
+<script lang="ts">
+  import { goto } from '$app/navigation';
+  import { useAuth } from '$lib/utils';
+
+  let email = '';
+  let error = '';
+
+  function submit() {
+    error = '';
+    if (!email.trim()) {
+      error = 'Email is required';
+      return;
+    }
+    useAuth().login(`demo-token:${email.trim()}`);
+    goto('/dashboard');
+  }
+</script>
+
+<section>
+  <h1>Sign in</h1>
+  <form on:submit|preventDefault={submit}>
+    <label>
+      Email
+      <input bind:value={email} type="email" required />
+    </label>
+    <button type="submit">Continue</button>
+  </form>
+  {#if error}<p role="alert">{error}</p>{/if}
+</section>

@@ -1,0 +1,9 @@
+import { RN_API_URL } from '@env';
+
+const fallback = 'http://localhost:3000';
+
+/** From `.env` key `RN_API_URL` (see `.env.example`); falls back if unset. */
+export const apiUrl =
+  typeof RN_API_URL === 'string' && RN_API_URL.trim().length > 0 ? RN_API_URL.trim() : fallback;
+
+export const appName = '{{projectName}}';

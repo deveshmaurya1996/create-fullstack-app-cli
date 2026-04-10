@@ -1,0 +1,29 @@
+import 'dart:convert';
+
+import 'package:http/http.dart' as http;
+
+import '../utils/constants.dart';
+
+class ApiService {
+  ApiService({http.Client? client}) : _client = client ?? http.Client();
+
+  final http.Client _client;
+
+  Uri _uri(String path) {
+    final base = kApiBaseUrl.replaceAll(RegExp(r'/$'), '');
+    final normalized = path.startsWith('/') ? path : '/$path';
+    return Uri.parse('$base$normalized');
+  }
+
+  Future<Map<String, dynamic>?> getJson(String path) async {
+    final response = await _client.get(_uri(path));
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      return null;
+    }
+    final data = jsonDecode(response.body);
+    if (data is Map<String, dynamic>) {
+      return data;
+    }
+    return null;
+  }
+}

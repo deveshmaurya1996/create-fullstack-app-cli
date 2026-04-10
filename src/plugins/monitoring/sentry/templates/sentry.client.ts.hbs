@@ -1,0 +1,15 @@
+import * as Sentry from '@sentry/react';
+
+let initialized = false;
+
+export function initSentryClient(): void {
+  if (initialized) return;
+  initialized = true;
+
+  Sentry.init({
+    dsn: import.meta.env.VITE_SENTRY_DSN || process.env.SENTRY_DSN,
+    tracesSampleRate: 1.0,
+  });
+}
+
+export { Sentry };

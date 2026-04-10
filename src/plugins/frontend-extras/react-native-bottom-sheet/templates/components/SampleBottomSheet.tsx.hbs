@@ -1,0 +1,16 @@
+import BottomSheet from '@gorhom/bottom-sheet';
+import { useMemo, useRef } from 'react';
+import { Text, View } from 'react-native';
+
+export function SampleBottomSheet(): JSX.Element {
+  const snapPoints = useMemo(() => ['25%', '50%'], []);
+  const ref = useRef<BottomSheet>(null);
+
+  return (
+    <BottomSheet ref={ref} snapPoints={snapPoints}>
+      <View style={{ padding: 16 }}>
+        <Text>Bottom Sheet Content</Text>
+      </View>
+    </BottomSheet>
+  );
+}

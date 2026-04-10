@@ -1,0 +1,8 @@
+import request from 'supertest';
+
+describe('GET /users', () => {
+  it('responds', async () => {
+    const app = { get: () => undefined } as unknown as Parameters<typeof request>[0];
+    await request(app).get('/users');
+  });
+});

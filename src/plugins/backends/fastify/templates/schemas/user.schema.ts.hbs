@@ -1,0 +1,8 @@
+export const userSchema = {
+  type: 'object',
+  required: ['id', 'email'],
+  properties: {
+    id: { type: 'string' },
+    email: { type: 'string', format: 'email' },
+  },
+} as const;

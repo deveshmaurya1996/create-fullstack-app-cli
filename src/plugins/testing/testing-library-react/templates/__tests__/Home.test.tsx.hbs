@@ -1,0 +1,8 @@
+import { render, screen } from '@testing-library/react';
+
+describe('Home', () => {
+  it('renders title', () => {
+    render(<h1>Home</h1>);
+    expect(screen.getByText('Home')).toBeInTheDocument();
+  });
+});

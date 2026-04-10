@@ -1,0 +1,4 @@
+router.all('/trpc', async (req, res) => {
+  const response = await trpcFetchHandler(req as unknown as Request);
+  res.status(response.status).send(await response.text());
+});

@@ -1,0 +1,26 @@
+import { Link } from 'react-router-dom';
+import { apiUrl, appName } from '../lib/config';
+
+export default function Home() {
+  return (
+    <div>
+      <h1>Welcome to {appName}</h1>
+      <p>React + Vite starter.</p>
+      <ul>
+        <li>
+          <Link to="/about">About</Link>
+        </li>
+{{#if hasAuth}}
+        <li>
+          <Link to="/dashboard">Dashboard</Link> (protected)
+        </li>
+{{/if}}
+      </ul>
+{{#if hasBackend}}
+      <p>
+        API base URL: <code>{apiUrl}</code>
+      </p>
+{{/if}}
+    </div>
+  );
+}

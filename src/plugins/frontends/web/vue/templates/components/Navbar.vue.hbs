@@ -1,0 +1,24 @@
+<template>
+  <header class="nav">
+    <strong>{{projectName}}</strong>
+    <nav>
+      <RouterLink to="/">Home</RouterLink>
+      <RouterLink to="/about">About</RouterLink>
+{{#if hasAuth}}
+      <RouterLink to="/dashboard">Dashboard</RouterLink>
+      <RouterLink to="/login">Login</RouterLink>
+{{/if}}
+    </nav>
+  </header>
+</template>
+
+<style scoped>
+.nav {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+nav { display: flex; gap: 0.75rem; }
+</style>

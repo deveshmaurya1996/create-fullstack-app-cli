@@ -1,0 +1,12 @@
+import { getMysqlPool } from './db-connection.js';
+
+export async function checkMysqlHealth(): Promise<boolean> {
+  try {
+    const connection = await getMysqlPool().getConnection();
+    await connection.ping();
+    connection.release();
+    return true;
+  } catch {
+    return false;
+  }
+}

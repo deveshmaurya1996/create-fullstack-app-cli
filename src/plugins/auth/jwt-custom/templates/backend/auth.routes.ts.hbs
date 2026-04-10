@@ -1,0 +1,14 @@
+import { Router } from 'express';
+import { login } from '../services/auth.service';
+
+export const authRouter = Router();
+
+authRouter.post('/auth/login', async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    const data = await login(email, password);
+    res.json(data);
+  } catch (error) {
+    next(error);
+  }
+});

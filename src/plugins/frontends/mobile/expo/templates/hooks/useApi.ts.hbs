@@ -1,0 +1,31 @@
+import { useCallback, useState } from 'react';
+import { apiUrl } from '../lib/config';
+
+function joinUrl(path: string): string {
+  const base = apiUrl.replace(/\/$/, '');
+  return `${base}${path.startsWith('/') ? path : `/${path}`}`;
+}
+
+export function useApi() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const get = useCallback(async <T,>(path: string): Promise<T | null> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(joinUrl(path));
+      if (!res.ok) {
+        throw new Error(res.statusText || `HTTP ${res.status}`);
+      }
+      return (await res.json()) as T;
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Request failed');
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { get, loading, error };
+}

@@ -1,0 +1,29 @@
+import { Image, Text, View, StyleSheet } from 'react-native';
+
+type Props = { name: string; uri?: string; size?: number };
+
+export function Avatar({ name, uri, size = 40 }: Props) {
+  const initial = name.trim().charAt(0).toUpperCase() || '?';
+  if (uri) {
+    return (
+      <Image
+        source={{ uri }}
+        style={{ width: size, height: size, borderRadius: size / 2 }}
+      />
+    );
+  }
+  return (
+    <View style={[styles.circle, { width: size, height: size, borderRadius: size / 2 }]}>
+      <Text style={[styles.text, { fontSize: size * 0.4 }]}>{initial}</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  circle: {
+    backgroundColor: '#e4e4e7',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  text: { fontWeight: '700', color: '#3f3f46' },
+});

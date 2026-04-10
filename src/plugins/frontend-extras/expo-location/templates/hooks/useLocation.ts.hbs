@@ -1,0 +1,17 @@
+import { useEffect, useState } from 'react';
+import * as Location from 'expo-location';
+
+export function useLocation() {
+  const [coords, setCoords] = useState<Location.LocationObjectCoords | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') return;
+      const current = await Location.getCurrentPositionAsync({});
+      setCoords(current.coords);
+    })();
+  }, []);
+
+  return coords;
+}

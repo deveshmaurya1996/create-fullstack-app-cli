@@ -1,0 +1,25 @@
+import 'package:shared_preferences/shared_preferences.dart';
+
+class AuthService {
+  static const _key = 'auth_token';
+  String? _token;
+
+  String? get token => _token;
+
+  Future<void> load() async {
+    final prefs = await SharedPreferences.getInstance();
+    _token = prefs.getString(_key);
+  }
+
+  Future<void> saveToken(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_key, value);
+    _token = value;
+  }
+
+  Future<void> clear() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_key);
+    _token = null;
+  }
+}

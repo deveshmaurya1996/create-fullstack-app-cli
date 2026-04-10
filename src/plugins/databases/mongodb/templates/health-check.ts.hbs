@@ -1,0 +1,11 @@
+import { getMongoClient } from './db-connection.js';
+
+export async function checkMongodbHealth(): Promise<boolean> {
+  try {
+    const c = await getMongoClient();
+    await c.db().command({ ping: 1 });
+    return true;
+  } catch {
+    return false;
+  }
+}

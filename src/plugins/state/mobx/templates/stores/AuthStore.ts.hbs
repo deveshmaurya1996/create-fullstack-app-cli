@@ -1,0 +1,17 @@
+import { makeAutoObservable } from 'mobx';
+
+export class AuthStore {
+  token: string | null = null;
+
+  constructor() {
+    makeAutoObservable(this);
+  }
+
+  setToken(token: string | null): void {
+    this.token = token;
+  }
+
+  clearAuth(): void {
+    this.token = null;
+  }
+}

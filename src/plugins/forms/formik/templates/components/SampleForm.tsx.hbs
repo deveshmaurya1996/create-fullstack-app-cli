@@ -1,0 +1,34 @@
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { loginFormInitialValues, validateLoginForm } from '../../lib/validators';
+
+export function SampleForm(): JSX.Element {
+  return (
+    <Formik
+      initialValues={loginFormInitialValues}
+      validate={validateLoginForm}
+      onSubmit={async (values, { setSubmitting }) => {
+        try {
+          console.log('Formik submit', values);
+        } finally {
+          setSubmitting(false);
+        }
+      }}
+    >
+      {({ isSubmitting }) => (
+        <Form style={{ display: 'grid', gap: 12, maxWidth: 360 }}>
+          <label htmlFor="email">Email</label>
+          <Field id="email" name="email" type="email" />
+          <ErrorMessage name="email" component="small" />
+
+          <label htmlFor="password">Password</label>
+          <Field id="password" name="password" type="password" />
+          <ErrorMessage name="password" component="small" />
+
+          <button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Submitting...' : 'Submit'}
+          </button>
+        </Form>
+      )}
+    </Formik>
+  );
+}

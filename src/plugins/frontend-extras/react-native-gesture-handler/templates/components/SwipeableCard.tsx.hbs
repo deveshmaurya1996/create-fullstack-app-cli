@@ -1,0 +1,12 @@
+import { Swipeable } from 'react-native-gesture-handler';
+import { Text, View } from 'react-native';
+
+export function SwipeableCard(): JSX.Element {
+  return (
+    <Swipeable>
+      <View style={{ padding: 16, borderRadius: 12, backgroundColor: '#f1f5f9' }}>
+        <Text>Swipe me</Text>
+      </View>
+    </Swipeable>
+  );
+}

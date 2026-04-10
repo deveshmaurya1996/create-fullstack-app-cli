@@ -1,0 +1,36 @@
+import * as React from 'react';
+
+export interface DropdownItem {
+  label: string;
+  onSelect: () => void;
+}
+
+interface DropdownMenuProps {
+  trigger: React.ReactNode;
+  items: DropdownItem[];
+}
+
+export function DropdownMenu({ trigger, items }: DropdownMenuProps): JSX.Element {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div className="relative inline-block text-left">
+      <button onClick={() => setOpen((v) => !v)}>{trigger}</button>
+      {open ? (
+        <div className="absolute right-0 z-20 mt-2 min-w-40 rounded-md border bg-white p-1 shadow">
+          {items.map((item) => (
+            <button
+              key={item.label}
+              className="block w-full rounded px-3 py-2 text-left text-sm hover:bg-slate-100"
+              onClick={() => {
+                item.onSelect();
+                setOpen(false);
+              }}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}

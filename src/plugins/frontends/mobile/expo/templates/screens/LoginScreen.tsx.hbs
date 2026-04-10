@@ -1,0 +1,74 @@
+import { useState } from 'react';
+import { Text, StyleSheet, Pressable } from 'react-native';
+{{#if hasExpoRouter}}
+import { Link, useRouter } from 'expo-router';
+{{else}}
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation/types';
+{{/if}}
+import { Screen } from '../components/Screen';
+import { Input } from '../components/Input';
+import { Button } from '../components/Button';
+import { useAuth } from '../hooks/useAuth';
+
+{{#unless hasExpoRouter}}
+type LoginNav = NativeStackNavigationProp<RootStackParamList, 'Login'>;
+{{/unless}}
+
+export default function LoginScreen() {
+  const { login } = useAuth();
+{{#if hasExpoRouter}}
+  const router = useRouter();
+{{else}}
+  const navigation = useNavigation<LoginNav>();
+{{/if}}
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  async function onSubmit() {
+    setError('');
+    if (!email.trim() || !password) {
+      setError('Enter email and password.');
+      return;
+    }
+    await login('demo-token');
+{{#if hasExpoRouter}}
+    router.replace('/(tabs)');
+{{else}}
+    navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
+{{/if}}
+  }
+
+  return (
+    <Screen scroll>
+      <Text style={styles.title}>Sign in</Text>
+      <Input
+        label="Email"
+        autoCapitalize="none"
+        keyboardType="email-address"
+        value={email}
+        onChangeText={setEmail}
+      />
+      <Input label="Password" secureTextEntry value={password} onChangeText={setPassword} />
+      {error ? <Text style={styles.err}>{error}</Text> : null}
+      <Button title="Continue" onPress={() => void onSubmit()} style={{ marginTop: 16 }} />
+{{#if hasExpoRouter}}
+      <Link href="/(auth)/register" style={{ marginTop: 16 }}>
+        <Text style={styles.link}>Create account</Text>
+      </Link>
+{{else}}
+      <Pressable onPress={() => navigation.navigate('Register')} style={{ marginTop: 16 }}>
+        <Text style={styles.link}>Create account</Text>
+      </Pressable>
+{{/if}}
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  title: { fontSize: 24, fontWeight: '700', marginBottom: 16 },
+  err: { color: '#dc2626', marginTop: 8 },
+  link: { color: '#2563eb', fontSize: 16 },
+});

@@ -1,0 +1,13 @@
+import { makeAutoObservable } from 'mobx';
+
+export class AppStore {
+  ready = false;
+
+  constructor() {
+    makeAutoObservable(this);
+  }
+
+  setReady(value: boolean): void {
+    this.ready = value;
+  }
+}

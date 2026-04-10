@@ -1,0 +1,19 @@
+import { useQuery } from '@tanstack/react-query';
+
+interface User {
+  id: string;
+  email: string;
+}
+
+async function fetchUsers(): Promise<User[]> {
+  const response = await fetch('/api/users');
+  if (!response.ok) throw new Error('Failed to fetch users');
+  return (await response.json()) as User[];
+}
+
+export function useUsers() {
+  return useQuery({
+    queryKey: ['users'],
+    queryFn: fetchUsers,
+  });
+}

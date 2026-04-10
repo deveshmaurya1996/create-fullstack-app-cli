@@ -1,0 +1,8 @@
+import type { FieldValues, SubmitHandler, UseFormHandleSubmit } from 'react-hook-form';
+
+export function createSubmitHandler<T extends FieldValues>(
+  handleSubmit: UseFormHandleSubmit<T>,
+  onSubmit: SubmitHandler<T>
+) {
+  return handleSubmit(onSubmit);
+}

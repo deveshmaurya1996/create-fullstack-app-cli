@@ -1,0 +1,25 @@
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APITestCase
+
+from .models import Profile
+
+
+class ProfileApiTests(APITestCase):
+    def test_list_profiles_empty(self):
+        url = reverse('profile-list')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['results'], [])
+
+    def test_create_and_retrieve_profile(self):
+        url = reverse('profile-list')
+        payload = {'email': 'test@example.com', 'name': 'Test'}
+        response = self.client.post(url, payload, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        pk = response.data['id']
+        detail = reverse('profile-detail', kwargs={'pk': pk})
+        get_response = self.client.get(detail)
+        self.assertEqual(get_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(get_response.data['email'], 'test@example.com')
+        self.assertEqual(Profile.objects.count(), 1)

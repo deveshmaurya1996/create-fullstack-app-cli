@@ -1,0 +1,6 @@
+import type { PropsWithChildren } from 'react';
+import { ClerkProvider as BaseClerkProvider } from '@clerk/clerk-react';
+
+export function ClerkProvider({ children }: PropsWithChildren): JSX.Element {
+  return <BaseClerkProvider publishableKey={process.env.CLERK_PUBLISHABLE_KEY}>{children}</BaseClerkProvider>;
+}

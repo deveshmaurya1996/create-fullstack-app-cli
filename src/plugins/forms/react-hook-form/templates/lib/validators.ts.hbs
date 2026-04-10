@@ -1,0 +1,8 @@
+export const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export function minLength(length: number, label = 'Value') {
+  return {
+    value: length,
+    message: `${label} must be at least ${length} characters`,
+  };
+}

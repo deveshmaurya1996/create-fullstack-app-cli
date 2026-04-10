@@ -1,0 +1,12 @@
+import Database from 'better-sqlite3';
+
+let db: Database.Database | null = null;
+
+export function getSqliteDatabase(): Database.Database {
+  if (!db) {
+    const fromEnv = process.env.SQLITE_PATH ?? process.env.DATABASE_URL?.replace(/^file:(\.\/)?/, '');
+    const path = fromEnv || './dev.db';
+    db = new Database(path);
+  }
+  return db;
+}

@@ -1,0 +1,8 @@
+import type { Hono } from 'hono';
+import { healthRoute } from './health.js';
+import { usersRoute } from './users.js';
+
+export function registerRoutes(app: Hono): void {
+  app.route('/health', healthRoute);
+  app.route('/users', usersRoute);
+}

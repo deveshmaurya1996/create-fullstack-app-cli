@@ -1,0 +1,63 @@
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import type { RootStackParamList, MainTabParamList } from './types';
+import HomeScreen from '../screens/HomeScreen';
+import ProfileScreen from '../screens/ProfileScreen';
+import SettingsScreen from '../screens/SettingsScreen';
+import { LoadingScreen } from '../components/LoadingScreen';
+{{#if hasAuth}}
+import LoginScreen from '../screens/LoginScreen';
+import RegisterScreen from '../screens/RegisterScreen';
+import { useAuth } from '../hooks/useAuth';
+{{/if}}
+
+const RootStack = createNativeStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<MainTabParamList>();
+
+function MainTabs() {
+  return (
+    <Tab.Navigator screenOptions={{ headerShown: true }}>
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Settings" component={SettingsScreen} />
+    </Tab.Navigator>
+  );
+}
+
+function RootStackScreens() {
+{{#if hasAuth}}
+  const { token, isReady } = useAuth();
+
+  if (!isReady) {
+    return <LoadingScreen />;
+  }
+
+  return (
+    <RootStack.Navigator>
+      {token ? (
+        <RootStack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
+      ) : (
+        <>
+          <RootStack.Screen name="Login" component={LoginScreen} options={{ title: 'Sign in' }} />
+          <RootStack.Screen name="Register" component={RegisterScreen} options={{ title: 'Register' }} />
+        </>
+      )}
+    </RootStack.Navigator>
+  );
+{{else}}
+  return (
+    <RootStack.Navigator screenOptions={{ headerShown: false }}>
+      <RootStack.Screen name="MainTabs" component={MainTabs} />
+    </RootStack.Navigator>
+  );
+{{/if}}
+}
+
+export default function RootNavigator() {
+  return (
+    <NavigationContainer>
+      <RootStackScreens />
+    </NavigationContainer>
+  );
+}

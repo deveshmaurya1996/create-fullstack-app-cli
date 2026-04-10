@@ -1,0 +1,9 @@
+import { render, screen } from '@testing-library/react-native';
+import { Text } from 'react-native';
+
+describe('HomeScreen', () => {
+  it('renders text', () => {
+    render(<Text>Home Screen</Text>);
+    expect(screen.getByText('Home Screen')).toBeTruthy();
+  });
+});

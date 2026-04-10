@@ -1,0 +1,12 @@
+import { getPostgresPool } from './db-connection.js';
+
+export async function checkPostgresHealth(): Promise<boolean> {
+  try {
+    const client = await getPostgresPool().connect();
+    await client.query('SELECT 1');
+    client.release();
+    return true;
+  } catch {
+    return false;
+  }
+}

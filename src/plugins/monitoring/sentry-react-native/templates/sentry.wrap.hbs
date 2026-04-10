@@ -1,0 +1,8 @@
+import type { ComponentType } from 'react';
+import { Sentry } from './sentry.mobile';
+
+export function withSentryNavigationInstrumentation<TProps>(
+  Component: ComponentType<TProps>
+): ComponentType<TProps> {
+  return Sentry.wrap(Component);
+}

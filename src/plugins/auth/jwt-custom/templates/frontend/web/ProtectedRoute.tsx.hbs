@@ -1,0 +1,8 @@
+import type { PropsWithChildren } from 'react';
+import { useAuth } from './AuthProvider';
+
+export function ProtectedRoute({ children }: PropsWithChildren): JSX.Element {
+  const { token } = useAuth();
+  if (!token) return <div>Unauthorized</div>;
+  return <>{children}</>;
+}

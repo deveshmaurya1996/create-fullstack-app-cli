@@ -1,0 +1,56 @@
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { linking } from './linking';
+import type { RootStackParamList } from './types';
+import { TabNavigator } from './TabNavigator';
+{{#if hasAuth}}
+import { useAuth } from '../hooks/useAuth';
+import LoginScreen from '../screens/LoginScreen';
+import RegisterScreen from '../screens/RegisterScreen';
+import { LoadingScreen } from '../components/LoadingScreen';
+{{/if}}
+{{#if hasExpo}}
+import { StatusBar } from 'expo-status-bar';
+{{/if}}
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+function RootStack() {
+{{#if hasAuth}}
+  const { token, isReady } = useAuth();
+
+  if (!isReady) {
+    return <LoadingScreen />;
+  }
+
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: true }}>
+      {token ? (
+        <Stack.Screen name="MainTabs" component={TabNavigator} options={{ headerShown: false }} />
+      ) : (
+        <>
+          <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'Sign in' }} />
+          <Stack.Screen name="Register" component={RegisterScreen} options={{ title: 'Register' }} />
+        </>
+      )}
+    </Stack.Navigator>
+  );
+{{else}}
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="MainTabs" component={TabNavigator} />
+    </Stack.Navigator>
+  );
+{{/if}}
+}
+
+export default function RootNavigator() {
+  return (
+    <NavigationContainer linking={linking}>
+{{#if hasExpo}}
+      <StatusBar style="auto" />
+{{/if}}
+      <RootStack />
+    </NavigationContainer>
+  );
+}

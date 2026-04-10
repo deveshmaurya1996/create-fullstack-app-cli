@@ -1,0 +1,12 @@
+import { Image } from 'expo-image';
+
+export function OptimizedImage(props: { uri: string; width?: number; height?: number }): JSX.Element {
+  return (
+    <Image
+      source={{ uri: props.uri }}
+      contentFit="cover"
+      transition={200}
+      style={{ width: props.width ?? 200, height: props.height ?? 200 }}
+    />
+  );
+}

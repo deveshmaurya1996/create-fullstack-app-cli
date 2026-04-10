@@ -1,0 +1,46 @@
+import { useForm } from 'react-hook-form';
+import { FormField } from './FormField';
+import { emailPattern } from '../../lib/validators';
+
+interface SampleFormValues {
+  email: string;
+  password: string;
+}
+
+export function SampleForm(): JSX.Element {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<SampleFormValues>();
+
+  const onSubmit = async (values: SampleFormValues) => {
+    console.log('Form submitted', values);
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'grid', gap: 12, maxWidth: 360 }}>
+      <FormField
+        label="Email"
+        type="email"
+        registration={register('email', {
+          required: 'Email is required',
+          pattern: { value: emailPattern, message: 'Enter a valid email address' },
+        })}
+        error={errors.email}
+      />
+      <FormField
+        label="Password"
+        type="password"
+        registration={register('password', {
+          required: 'Password is required',
+          minLength: { value: 8, message: 'At least 8 characters required' },
+        })}
+        error={errors.password}
+      />
+      <button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? 'Submitting...' : 'Submit'}
+      </button>
+    </form>
+  );
+}

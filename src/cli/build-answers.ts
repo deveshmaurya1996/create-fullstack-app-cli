@@ -1,169 +1,161 @@
-import type {
-  ApiTypeChoice,
-  BackendChoice,
-  BackendUtilityChoice,
-  OrmChoice,
-  PromptAnswers,
-} from "../setup/types.js";
-import {
-  defaultBackendUtilitiesForBackend,
-  defaultOrmForBackend,
-  getApiTypesForBackend,
-  getBackendUtilitiesForBackend,
-  getOrmChoicesForBackend,
-} from "./choices-registry.js";
-import {
-  getBackendBasicPackageDefaults,
-  getFrontendBasicPackageDefaults,
-} from "../setup/basic-package-catalog.js";
-import {
-  migrateLegacyBackendPackages,
-  migrateLegacyFrontendPackages,
-  splitLegacyBasicPackages,
-} from "../setup/basic-packages.js";
-import type { RawPromptAnswers } from "./types.js";
-import { isFlutterFrontend, isMobileAppType, wantsBackend, wantsFrontend } from "./visibility.js";
+import type { WizardDraft, WizardAnswers, Scope, Structure, Platform, PackageManager } from '../shared/types.js';
+import { SCOPES, STRUCTURES, PLATFORMS } from '../shared/constants.js';
+import { draftNeedsBackend } from './visibility.js';
 
-function sanitizeOrm(backend: BackendChoice | undefined, raw: string | undefined): OrmChoice {
-  const allowed = new Set(getOrmChoicesForBackend(backend));
-  const v = raw ?? defaultOrmForBackend(backend);
-  return (allowed.has(v) ? v : defaultOrmForBackend(backend)) as OrmChoice;
-}
+export function buildAnswers(draft: WizardDraft): WizardAnswers {
+  const structure = (draft.structure || STRUCTURES.SINGLE_APP) as Structure;
+  const scope = resolveScope(draft);
+  const platform = resolvePlatform(draft);
 
-function sanitizeBackendUtilities(
-  backend: BackendChoice | undefined,
-  raw: BackendUtilityChoice[] | undefined
-): BackendUtilityChoice[] {
-  const allowed = new Set(getBackendUtilitiesForBackend(backend));
-  const list = raw ?? defaultBackendUtilitiesForBackend(backend);
-  return list.filter((u): u is BackendUtilityChoice => allowed.has(u));
-}
-
-function sanitizeApiType(backend: BackendChoice | undefined, raw: string | undefined): ApiTypeChoice | undefined {
-  const allowed = new Set(getApiTypesForBackend(backend));
-  const v = raw ?? "REST";
-  return (allowed.has(v) ? v : "REST") as ApiTypeChoice;
-}
-
-function withMobileProjectOverrides(raw: RawPromptAnswers): RawPromptAnswers {
-  if (raw.projectType !== "Mobile app") return raw;
   return {
-    ...raw,
-    projectStructure: "Single app",
-    singleAppScope: "Frontend only",
-    needBackend: false,
-    frontendPlatform: "Mobile",
+    projectName: draft.projectName || 'my-app',
+    structure,
+    scope,
+    projectType: draft.projectType || null,
+    monorepoTool: draft.monorepoTool || null,
+    packageManager: (draft.packageManager || 'pnpm') as PackageManager,
+    platform,
+
+    // Frontend
+    webFramework: draft.webFramework || null,
+    mobileFramework: draft.mobileFramework || null,
+    webStyling: draft.webStyling || null,
+    mobileStyling: draft.mobileStyling || null,
+    stateManagement: draft.stateManagement || [],
+    formLibrary: draft.formLibrary || null,
+    uiLibrary: draft.uiLibrary || null,
+    apiClient: draft.apiClient || null,
+    mobileNavigation: draft.mobileNavigation || null,
+    frontendExtras: draft.frontendExtras || [],
+
+    // Backend
+    backendFramework: draft.backendFramework || null,
+    backendTs:
+      draft.backendFramework === 'django' || draft.backendFramework === 'fastapi'
+        ? false
+        : (draft.backendTs ?? true),
+    apiStyle:
+      draft.backendFramework === 'django' || draft.backendFramework === 'fastapi'
+        ? 'rest'
+        : draft.apiStyle || null,
+    database: draft.database || null,
+    orm:
+      draft.backendFramework === 'django' || draft.backendFramework === 'fastapi'
+        ? null
+        : (draft.orm || null),
+    redis: draft.redis ?? false,
+    backendExtras: draft.backendExtras || [],
+
+    // Shared
+    auth: draft.auth || null,
+    testing: draft.testing || [],
+    logging: draft.logging || null,
+    monitoring: draft.monitoring || null,
+    devtools: draft.devtools || [],
+    devops: draft.devops || [],
+    deployment: draft.deployment || [],
+
+    needBackend: draft.needBackend ?? draftNeedsBackend(draft),
   };
 }
 
-function resolveBasicPackageSelections(raw: RawPromptAnswers): {
-  basicPackagesFrontend: string[];
-  basicPackagesBackend: string[];
-} {
-  const fe = raw.basicPackagesFrontend;
-  const be = raw.basicPackagesBackend;
-  const hasNew = fe !== undefined || be !== undefined;
-  if (hasNew) {
-    return {
-      basicPackagesFrontend: fe ?? getFrontendBasicPackageDefaults(raw.frontend ?? "Next.js"),
-      basicPackagesBackend: be ?? getBackendBasicPackageDefaults(raw.backend ?? "Express"),
-    };
+function resolveScope(draft: WizardDraft): Scope {
+  if (draft.scope) return draft.scope as Scope;
+
+  // Microservices implies fullstack
+  if (draft.structure === STRUCTURES.MICROSERVICES) return SCOPES.FULLSTACK as Scope;
+
+  // Monorepo defaults to fullstack
+  if (draft.structure === STRUCTURES.MONOREPO) return SCOPES.FULLSTACK as Scope;
+
+  return SCOPES.FULLSTACK as Scope;
+}
+
+function resolvePlatform(draft: WizardDraft): Platform {
+  if (draft.platform) return draft.platform as Platform;
+
+  // If mobile framework is set, it's mobile
+  if (draft.mobileFramework) return PLATFORMS.MOBILE as Platform;
+
+  // If web framework is set, it's web
+  if (draft.webFramework) return PLATFORMS.WEB as Platform;
+
+  // Default
+  return PLATFORMS.WEB as Platform;
+}
+
+/**
+ * Collects all active plugin IDs from the answers.
+ */
+export function collectActivePluginIds(answers: WizardAnswers): string[] {
+  const ids: string[] = [];
+
+  // Frameworks
+  if (answers.webFramework) ids.push(answers.webFramework);
+  if (answers.mobileFramework) ids.push(answers.mobileFramework);
+  if (answers.backendFramework) ids.push(answers.backendFramework);
+
+  // API style server plugins
+  if (answers.apiStyle === 'graphql') ids.push('graphql-server');
+  if (answers.apiStyle === 'trpc') ids.push('trpc-server');
+
+  // Database
+  if (answers.database && answers.database !== 'none') ids.push(answers.database);
+  if (answers.redis) ids.push('redis');
+
+  // ORM
+  if (answers.orm && answers.orm !== 'none') ids.push(answers.orm);
+
+  // Auth
+  if (answers.auth && answers.auth !== 'none') ids.push(answers.auth);
+
+  // Styling
+  if (answers.webStyling && answers.webStyling !== 'none') ids.push(answers.webStyling);
+  if (answers.mobileStyling && answers.mobileStyling !== 'none') ids.push(answers.mobileStyling);
+
+  // State
+  ids.push(...(answers.stateManagement || []));
+
+  // Forms
+  if (answers.formLibrary && answers.formLibrary !== 'none') ids.push(answers.formLibrary);
+
+  // UI Library
+  if (answers.uiLibrary && answers.uiLibrary !== 'none') ids.push(answers.uiLibrary);
+
+  // API Client
+  if (answers.apiClient && answers.apiClient !== 'none') ids.push(answers.apiClient);
+
+  // Navigation — default Expo → expo-router; React Native CLI → react-navigation
+  if (answers.mobileNavigation && answers.mobileNavigation !== 'none') {
+    ids.push(answers.mobileNavigation);
+  } else if (answers.mobileFramework === 'expo') {
+    ids.push('expo-router');
+  } else if (answers.mobileFramework === 'react-native-cli') {
+    ids.push('react-navigation');
   }
-  if (raw.basicPackages !== undefined && raw.basicPackages.length > 0) {
-    const leg = splitLegacyBasicPackages(raw.basicPackages);
-    return {
-      basicPackagesFrontend: leg.frontend.includes("None")
-        ? []
-        : migrateLegacyFrontendPackages(leg.frontend),
-      basicPackagesBackend: leg.backend.includes("None")
-        ? []
-        : migrateLegacyBackendPackages(leg.backend),
-    };
-  }
-  return {
-    basicPackagesFrontend: getFrontendBasicPackageDefaults(raw.frontend ?? "Next.js"),
-    basicPackagesBackend: getBackendBasicPackageDefaults(raw.backend ?? "Express"),
-  };
-}
 
-export function buildAnswers(rawAnswers: RawPromptAnswers): PromptAnswers {
-  const raw = withMobileProjectOverrides(rawAnswers);
-  const wb = wantsBackend(raw);
-  const wf = wantsFrontend(raw);
-  const basicPkgs = resolveBasicPackageSelections(raw);
+  // Extras
+  ids.push(...(answers.frontendExtras || []));
+  ids.push(...(answers.backendExtras || []));
 
-  const implicitFullProduct =
-    raw.projectStructure === "Single app" &&
-    raw.singleAppScope === "Full stack (frontend + backend)";
+  // Testing
+  ids.push(...(answers.testing || []));
 
-  const isMobile = isMobileAppType(raw);
+  // Logging
+  if (answers.logging && answers.logging !== 'none') ids.push(answers.logging);
 
-  const frontendResolved: PromptAnswers["frontend"] = wf
-    ? isMobile
-      ? raw.frontend ?? "Expo (React Native)"
-      : raw.frontend ?? "Next.js"
-    : "None";
+  // Monitoring
+  if (answers.monitoring && answers.monitoring !== 'none') ids.push(answers.monitoring);
 
-  const isFlutter = isFlutterFrontend(frontendResolved);
+  // Dev Tools
+  ids.push(...(answers.devtools || []));
 
-  const frontendPlatform: PromptAnswers["frontendPlatform"] = wf
-    ? isMobile
-      ? "Mobile"
-      : raw.frontendPlatform ??
-        (raw.frontend === "Expo (React Native)" ||
-        raw.frontend === "React Native (CLI)" ||
-        raw.frontend === "Flutter"
-          ? "Mobile"
-          : "Web")
-    : undefined;
+  // DevOps
+  ids.push(...(answers.devops || []));
 
-  return {
-    name: raw.name ?? "",
-    projectType: implicitFullProduct
-      ? "Full product (web + api)"
-      : raw.projectType ?? "SaaS app",
-    useRecommendedStack: false,
-    packageManager: raw.packageManager ?? "npm",
-    projectStructure: raw.projectStructure ?? "Monorepo (apps + packages)",
-    singleAppScope:
-      raw.projectStructure === "Single app"
-        ? raw.singleAppScope ?? "Full stack (frontend + backend)"
-        : undefined,
-    monorepoTool:
-      raw.projectStructure === "Monorepo (apps + packages)" ||
-      raw.projectStructure === "Microservices (multiple backend services)"
-        ? raw.monorepoTool ?? "Turborepo"
-        : undefined,
-    frontendPlatform,
-    frontend: frontendResolved,
-    frontendTypescript: isFlutter ? false : raw.frontendTypescript ?? true,
-    frontendStyling: isMobile ? "Vanilla CSS" : raw.frontendStyling ?? "Tailwind CSS",
-    stateData: isFlutter ? "None" : raw.stateData ?? "None",
-    frontendForms: isFlutter ? "None" : raw.frontendForms ?? "None",
-    frontendExtras: raw.frontendExtras ?? [],
-    needBackend: wb,
-    backend: wb
-      ? raw.backend ?? (raw.projectType === "API only" ? "NestJS" : "Express")
-      : undefined,
-    backendTypescript: raw.backendTypescript ?? true,
-    apiType: wb ? sanitizeApiType(raw.backend, raw.apiType) : undefined,
-    backendUtilities: wb ? sanitizeBackendUtilities(raw.backend, raw.backendUtilities) : [],
-    database: wb ? raw.database ?? "PostgreSQL" : "None",
-    orm: wb ? sanitizeOrm(raw.backend, raw.orm) : "None",
-    fileStorage: wf || wb ? raw.fileStorage ?? "Local storage" : "None",
-    authentication: raw.authentication ?? "None",
-    authFeatures: raw.authFeatures ?? [],
-    apiClient: wf && !isFlutter ? raw.apiClient ?? "Axios" : "Fetch",
-    devTools: raw.devTools ?? [],
-    testing: raw.testing ?? "None",
-    logging: wb ? raw.logging ?? "None" : "None",
-    monitoring: raw.monitoring ?? "None",
-    devops: raw.devops ?? [],
-    deployment: isMobile ? "None" : raw.deployment ?? "None",
-    advancedFeatures: raw.advancedFeatures ?? [],
-    aiFeatures: raw.aiFeatures ?? [],
-    basicPackagesFrontend: wf ? basicPkgs.basicPackagesFrontend : [],
-    basicPackagesBackend: wb ? basicPkgs.basicPackagesBackend : [],
-    confirmSetup: raw.setupAction === "Proceed setup" || raw.setupAction === undefined,
-  };
+  // Deployment
+  ids.push(...(answers.deployment || []));
+
+  // Remove "none" values and duplicates
+  return [...new Set(ids.filter((id) => id && id !== 'none'))];
 }

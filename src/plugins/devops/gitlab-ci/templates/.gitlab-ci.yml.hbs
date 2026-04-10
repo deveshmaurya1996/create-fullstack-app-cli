@@ -1,0 +1,14 @@
+stages:
+  - test
+  - build
+
+test:
+  stage: test
+  script:
+    - npm ci
+    - npm test
+
+build:
+  stage: build
+  script:
+    - npm run build

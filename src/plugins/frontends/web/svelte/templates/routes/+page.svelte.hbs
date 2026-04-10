@@ -1,0 +1,21 @@
+<script lang="ts">
+  import { apiUrl, appName } from '$lib/config';
+</script>
+
+<svelte:head>
+  <title>{appName}</title>
+</svelte:head>
+
+<section>
+  <h1>Welcome to {appName}</h1>
+  <p>SvelteKit starter.</p>
+  <ul>
+    <li><a href="/about">About</a></li>
+    {{#if hasAuth}}
+      <li><a href="/dashboard">Dashboard</a> (protected)</li>
+    {{/if}}
+  </ul>
+  {{#if hasBackend}}
+    <p>API base URL: <code>{apiUrl}</code></p>
+  {{/if}}
+</section>

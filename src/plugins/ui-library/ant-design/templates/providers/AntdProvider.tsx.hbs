@@ -1,0 +1,7 @@
+import type { PropsWithChildren } from 'react';
+import { ConfigProvider } from 'antd';
+import { antdTheme } from '../theme';
+
+export function AntdProvider({ children }: PropsWithChildren): JSX.Element {
+  return <ConfigProvider theme={antdTheme}>{children}</ConfigProvider>;
+}

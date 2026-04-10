@@ -1,0 +1,22 @@
+<header class="nav">
+  <strong>{{projectName}}</strong>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/about">About</a>
+{{#if hasAuth}}
+    <a href="/dashboard">Dashboard</a>
+    <a href="/login">Login</a>
+{{/if}}
+  </nav>
+</header>
+
+<style>
+  .nav {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+  nav { display: flex; gap: 0.75rem; }
+</style>

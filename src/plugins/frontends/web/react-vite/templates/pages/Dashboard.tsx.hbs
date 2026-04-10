@@ -1,0 +1,24 @@
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+
+export default function Dashboard() {
+  const { logout, token } = useAuth();
+  const navigate = useNavigate();
+
+  return (
+    <div>
+      <h1>Dashboard</h1>
+      <p>You are signed in.</p>
+      <pre style={{ fontSize: 12 }}>{token}</pre>
+      <button
+        type="button"
+        onClick={() => {
+          logout();
+          navigate('/', { replace: true });
+        }}
+      >
+        Sign out
+      </button>
+    </div>
+  );
+}

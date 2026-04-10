@@ -1,36 +1,69 @@
 {
   "name": "@dartix-software-solutions/create-fullstack-app",
   "version": "0.1.4",
-  "description": "Interactive CLI to scaffold full-stack apps (web, mobile, API, monorepos, Docker, auth, and more).",
-  "bin": {
-    "create-fullstack-app": "dist/index.js"
-  },
+  "description": "CLI tool to scaffold full-stack applications with pluggable architecture",
   "type": "module",
+  "bin": {
+    "create-fullstack-app": "./dist/bin/create-fullstack-app.js",
+    "cfa": "./dist/bin/create-fullstack-app.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist",
     "README.md"
   ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsx src/index.ts"
+    "dev": "tsx src/index.ts",
+    "build": "tsup src/index.ts src/bin/create-fullstack-app.ts --format esm --dts --clean",
+    "start": "node dist/index.js",
+    "lint": "eslint src/ --ext .ts",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "vitest run --config vitest.e2e.config.ts",
+    "typecheck": "tsc --noEmit",
+    "validate-plugins": "tsx scripts/validate-all-plugins.ts",
+    "generate-catalog": "tsx scripts/generate-plugin-catalog.ts",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^7.2.0",
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "execa": "^9.5.1",
+    "fs-extra": "^11.2.0",
+    "globby": "^14.0.2",
+    "handlebars": "^4.7.8",
+    "ora": "^8.1.1",
+    "yaml": "^2.6.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22.10.0",
+    "eslint": "^9.15.0",
+    "husky": "^9.1.7",
+    "prettier": "^3.4.1",
+    "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "keywords": [
     "cli",
+    "scaffold",
     "fullstack",
-    "scaffold"
+    "react",
+    "next",
+    "express",
+    "expo",
+    "react-native",
+    "generator"
   ],
-  "author": "Dartix",
-  "license": "MIT",
-  "dependencies": {
-    "chalk": "^5.6.2",
-    "fs-extra": "^11.3.4",
-    "inquirer": "^9.3.8",
-    "zx": "^7.2.4"
-  },
-  "devDependencies": {
-    "@types/inquirer": "^9.0.9",
-    "@types/node": "^20.19.39",
-    "tsx": "^4",
-    "typescript": "^5"
-  }
+  "license": "MIT"
 }

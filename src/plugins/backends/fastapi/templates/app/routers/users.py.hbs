@@ -1,0 +1,30 @@
+from fastapi import APIRouter, HTTPException, status
+
+from app.schemas.user import UserCreate, UserRead
+
+router = APIRouter()
+
+_db: list[UserRead] = [
+    UserRead(id=1, email="demo@example.com", name="Demo User"),
+]
+
+
+@router.get("/", response_model=list[UserRead])
+async def list_users() -> list[UserRead]:
+    return list(_db)
+
+
+@router.get("/{user_id}", response_model=UserRead)
+async def get_user(user_id: int) -> UserRead:
+    for user in _db:
+        if user.id == user_id:
+            return user
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+
+@router.post("/", response_model=UserRead, status_code=status.HTTP_201_CREATED)
+async def create_user(body: UserCreate) -> UserRead:
+    next_id = max((u.id for u in _db), default=0) + 1
+    user = UserRead(id=next_id, email=body.email, name=body.name)
+    _db.append(user)
+    return user

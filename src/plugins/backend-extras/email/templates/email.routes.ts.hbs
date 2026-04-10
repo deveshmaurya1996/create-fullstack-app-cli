@@ -1,0 +1,14 @@
+import { Router } from 'express';
+import { sendEmail } from '../services/email.service';
+
+export const emailRouter = Router();
+
+emailRouter.post('/email/send', async (req, res, next) => {
+  try {
+    const { to, subject, html } = req.body;
+    await sendEmail({ to, subject, html });
+    res.status(202).json({ ok: true });
+  } catch (error) {
+    next(error);
+  }
+});

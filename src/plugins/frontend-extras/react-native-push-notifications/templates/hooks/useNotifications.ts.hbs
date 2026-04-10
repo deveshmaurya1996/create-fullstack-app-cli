@@ -1,0 +1,8 @@
+import { useEffect } from 'react';
+import { configureNotifications } from '../lib/notifications';
+
+export function useNotifications(): void {
+  useEffect(() => {
+    configureNotifications();
+  }, []);
+}

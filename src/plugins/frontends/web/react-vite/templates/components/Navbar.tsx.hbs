@@ -1,0 +1,42 @@
+import { NavLink } from 'react-router-dom';
+import { appName } from '../lib/config';
+
+const linkStyle = ({ isActive }: { isActive: boolean }) => ({
+  marginRight: '1rem',
+  fontWeight: isActive ? 600 : 400,
+});
+
+export function Navbar() {
+  return (
+    <header
+      style={{
+        borderBottom: '1px solid #e5e7eb',
+        padding: '0.75rem 1.5rem',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '1rem',
+      }}
+    >
+      <strong>{appName}</strong>
+      <nav>
+        <NavLink to="/" end style={linkStyle}>
+          Home
+        </NavLink>
+        <NavLink to="/about" style={linkStyle}>
+          About
+        </NavLink>
+{{#if hasAuth}}
+        <NavLink to="/dashboard" style={linkStyle}>
+          Dashboard
+        </NavLink>
+        <NavLink to="/login" style={linkStyle}>
+          Login
+        </NavLink>
+        <NavLink to="/register" style={linkStyle}>
+          Register
+        </NavLink>
+{{/if}}
+      </nav>
+    </header>
+  );
+}

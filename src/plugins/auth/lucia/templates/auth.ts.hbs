@@ -1,0 +1,5 @@
+import { Lucia } from 'lucia';
+
+export const lucia = new Lucia(undefined as never, {
+  sessionCookie: { attributes: { secure: process.env.NODE_ENV === 'production' } },
+});

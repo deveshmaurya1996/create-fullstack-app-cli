@@ -1,0 +1,6 @@
+import type { PropsWithChildren } from 'react';
+import { SessionProvider as NextAuthSessionProvider } from 'next-auth/react';
+
+export function SessionProvider({ children }: PropsWithChildren): JSX.Element {
+  return <NextAuthSessionProvider>{children}</NextAuthSessionProvider>;
+}

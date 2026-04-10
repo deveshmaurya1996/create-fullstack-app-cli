@@ -1,0 +1,25 @@
+import 'package:flutter/material.dart';
+{{#if hasAuth}}
+import 'package:provider/provider.dart';
+import 'app.dart';
+import 'router.dart';
+import 'providers/auth_provider.dart';
+{{else}}
+import 'app.dart';
+import 'router.dart';
+{{/if}}
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+{{#if hasAuth}}
+  final auth = AuthProvider();
+  runApp(
+    ChangeNotifierProvider<AuthProvider>.value(
+      value: auth,
+      child: MyApp(routerConfig: buildRouter(auth)),
+    ),
+  );
+{{else}}
+  runApp(MyApp(routerConfig: buildRouter()));
+{{/if}}
+}

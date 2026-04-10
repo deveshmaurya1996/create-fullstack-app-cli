@@ -1,0 +1,21 @@
+<script setup lang="ts">
+import { useRouter } from 'vue-router';
+import { useAuth } from '../composables/useAuth';
+
+const router = useRouter();
+const { token, logout } = useAuth();
+
+function signOut() {
+  logout();
+  router.replace('/');
+}
+</script>
+
+<template>
+  <section>
+    <h1>Dashboard</h1>
+    <p>You are signed in.</p>
+    <pre>{{ token }}</pre>
+    <button type="button" @click="signOut">Sign out</button>
+  </section>
+</template>

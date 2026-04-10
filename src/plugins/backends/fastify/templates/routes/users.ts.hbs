@@ -1,0 +1,12 @@
+import type { FastifyPluginAsync } from 'fastify';
+import { getUserById, getUsers } from '../services/user.service.js';
+
+export const userRoutes: FastifyPluginAsync = async (app) => {
+  app.get('/', async () => getUsers());
+  app.get('/:id', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const user = getUserById(id);
+    if (!user) return reply.code(404).send({ message: 'User not found' });
+    return user;
+  });
+};

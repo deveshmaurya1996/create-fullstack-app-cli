@@ -1,0 +1,19 @@
+import type { ExpoConfig } from 'expo/config';
+
+const config: ExpoConfig = {
+  name: '{{projectName}}',
+  slug: '{{kebabCase projectName}}',
+  version: '1.0.0',
+  orientation: 'portrait',
+  scheme: '{{kebabCase projectName}}',
+  userInterfaceStyle: 'automatic',
+  ios: {
+    supportsTablet: true,
+  },
+  android: {},
+  web: {
+    bundler: 'metro',
+  },
+};
+
+export default config;

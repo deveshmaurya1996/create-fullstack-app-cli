@@ -1,0 +1,24 @@
+import {
+  DatadogProviderConfiguration,
+  DdSdkReactNative,
+} from '@datadog/mobile-react-native';
+
+let initialized = false;
+
+export async function initDatadogMobile(): Promise<void> {
+  if (initialized) return;
+  initialized = true;
+
+  const config = new DatadogProviderConfiguration(
+    process.env.EXPO_PUBLIC_DD_CLIENT_TOKEN || '',
+    process.env.EXPO_PUBLIC_DD_ENV || 'development',
+    process.env.EXPO_PUBLIC_DD_RUM_APP_ID || '',
+    true,
+    true,
+    true
+  );
+
+  config.site = 'US1';
+  config.serviceName = process.env.EXPO_PUBLIC_DD_SERVICE || 'mobile-app';
+  await DdSdkReactNative.initialize(config);
+}

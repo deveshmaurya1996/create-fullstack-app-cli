@@ -1,0 +1,7 @@
+import { createYoga } from 'graphql-yoga';
+import { typeDefs } from './schema';
+import { resolvers } from './resolvers';
+
+export const graphqlServer = createYoga({
+  schema: { typeDefs, resolvers },
+});

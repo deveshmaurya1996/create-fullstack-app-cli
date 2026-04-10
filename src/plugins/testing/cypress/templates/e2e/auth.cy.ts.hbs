@@ -1,0 +1,6 @@
+describe('auth', () => {
+  it('opens login page', () => {
+    cy.visit('/login');
+    cy.url().should('include', 'login');
+  });
+});

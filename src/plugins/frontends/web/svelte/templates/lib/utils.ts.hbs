@@ -1,0 +1,14 @@
+const AUTH_KEY = 'auth_token';
+
+export function cn(...parts: Array<string | undefined | false | null>): string {
+  return parts.filter(Boolean).join(' ');
+}
+
+export function useAuth() {
+  return {
+    token: () => (typeof localStorage === 'undefined' ? null : localStorage.getItem(AUTH_KEY)),
+    isAuthenticated: () => Boolean(typeof localStorage !== 'undefined' && localStorage.getItem(AUTH_KEY)),
+    login: (token: string) => localStorage.setItem(AUTH_KEY, token),
+    logout: () => localStorage.removeItem(AUTH_KEY),
+  };
+}

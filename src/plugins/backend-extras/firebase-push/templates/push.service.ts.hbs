@@ -1,0 +1,16 @@
+import { admin, initFirebase } from '../lib/firebase';
+
+export async function sendPushNotification(input: {
+  token: string;
+  title: string;
+  body: string;
+}): Promise<string> {
+  initFirebase();
+  return admin.messaging().send({
+    token: input.token,
+    notification: {
+      title: input.title,
+      body: input.body,
+    },
+  });
+}

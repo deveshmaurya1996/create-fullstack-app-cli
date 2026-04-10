@@ -1,0 +1,23 @@
+const AUTH_KEY = 'auth_token';
+
+function readToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return window.localStorage.getItem(AUTH_KEY);
+}
+
+export function useAuth() {
+  const token = readToken();
+  const isAuthenticated = Boolean(token);
+
+  function login(nextToken: string) {
+    window.localStorage.setItem(AUTH_KEY, nextToken);
+    window.dispatchEvent(new Event('auth-change'));
+  }
+
+  function logout() {
+    window.localStorage.removeItem(AUTH_KEY);
+    window.dispatchEvent(new Event('auth-change'));
+  }
+
+  return { token, isAuthenticated, login, logout };
+}

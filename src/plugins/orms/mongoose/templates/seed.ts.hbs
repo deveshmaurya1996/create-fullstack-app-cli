@@ -1,0 +1,13 @@
+import { connectMongo } from './mongoose.js';
+import { UserModel } from './models/user.model.js';
+
+async function main() {
+  await connectMongo();
+  await UserModel.create({ email: 'hello@example.com', name: 'Example User' });
+  process.exit(0);
+}
+
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

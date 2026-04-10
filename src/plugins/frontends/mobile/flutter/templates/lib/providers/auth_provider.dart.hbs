@@ -1,0 +1,30 @@
+import 'package:flutter/foundation.dart';
+import '../services/auth_service.dart';
+
+class AuthProvider extends ChangeNotifier {
+  AuthProvider() {
+    _init();
+  }
+
+  final AuthService _auth = AuthService();
+  bool _ready = false;
+
+  bool get isReady => _ready;
+  bool get isAuthenticated => _auth.token != null;
+
+  Future<void> _init() async {
+    await _auth.load();
+    _ready = true;
+    notifyListeners();
+  }
+
+  Future<void> login(String token) async {
+    await _auth.saveToken(token);
+    notifyListeners();
+  }
+
+  Future<void> logout() async {
+    await _auth.clear();
+    notifyListeners();
+  }
+}

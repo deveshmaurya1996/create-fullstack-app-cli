@@ -1,0 +1,11 @@
+import { emailQueue } from '../../lib/queue';
+
+export interface SendEmailJobPayload {
+  to: string;
+  subject: string;
+  html: string;
+}
+
+export async function enqueueSendEmail(payload: SendEmailJobPayload): Promise<void> {
+  await emailQueue.add('send-email', payload);
+}

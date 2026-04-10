@@ -1,0 +1,8 @@
+import { apiUrl } from '../lib/config';
+
+export async function apiGet<T>(path: string, init?: RequestInit): Promise<T> {
+  const url = path.startsWith('http') ? path : `${apiUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+  const res = await fetch(url, { ...init, headers: { Accept: 'application/json', ...init?.headers } });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return (await res.json()) as T;
+}

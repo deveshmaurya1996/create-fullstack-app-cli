@@ -1,0 +1,20 @@
+import { computed, ref } from 'vue';
+
+const AUTH_KEY = 'auth_token';
+const tokenRef = ref<string | null>(typeof window === 'undefined' ? null : localStorage.getItem(AUTH_KEY));
+
+export function useAuth() {
+  const isAuthenticated = computed(() => Boolean(tokenRef.value));
+
+  function login(token: string) {
+    tokenRef.value = token;
+    localStorage.setItem(AUTH_KEY, token);
+  }
+
+  function logout() {
+    tokenRef.value = null;
+    localStorage.removeItem(AUTH_KEY);
+  }
+
+  return { token: tokenRef, isAuthenticated, login, logout };
+}

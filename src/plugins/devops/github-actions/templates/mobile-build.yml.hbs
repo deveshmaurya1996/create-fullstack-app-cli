@@ -1,0 +1,9 @@
+name: Mobile Build
+on:
+  workflow_dispatch:
+jobs:
+  build-mobile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "Run EAS or native build steps here"

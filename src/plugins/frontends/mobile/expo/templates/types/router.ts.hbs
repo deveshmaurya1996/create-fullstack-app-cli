@@ -1,0 +1,10 @@
+export type AppRoutes =
+  | '/'
+  | '/(tabs)'
+  | '/(tabs)/profile'
+  | '/(tabs)/settings'
+{{#if hasAuth}}
+  | '/(auth)/login'
+  | '/(auth)/register'
+{{/if}}
+  ;

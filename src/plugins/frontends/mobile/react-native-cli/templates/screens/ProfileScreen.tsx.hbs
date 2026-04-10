@@ -1,0 +1,19 @@
+import { Text, StyleSheet } from 'react-native';
+import { Screen } from '../components/Screen';
+import { Avatar } from '../components/Avatar';
+import { APP_NAME } from '../constants';
+
+export default function ProfileScreen() {
+  return (
+    <Screen>
+      <Avatar name={APP_NAME} size={56} />
+      <Text style={styles.title}>Profile</Text>
+      <Text style={styles.sub}>User details and avatar can be wired to your API.</Text>
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  title: { fontSize: 22, fontWeight: '600', marginTop: 16 },
+  sub: { marginTop: 8, color: '#52525b', fontSize: 15, lineHeight: 22 },
+});

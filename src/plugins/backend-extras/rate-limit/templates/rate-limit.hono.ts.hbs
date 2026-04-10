@@ -1,0 +1,6 @@
+export function createRateLimitHeaders(remaining: number, resetSeconds: number): Record<string, string> {
+  return {
+    'X-RateLimit-Remaining': String(remaining),
+    'X-RateLimit-Reset': String(resetSeconds),
+  };
+}

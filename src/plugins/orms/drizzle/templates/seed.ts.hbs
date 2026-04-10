@@ -1,0 +1,11 @@
+import { db } from './index.js';
+import { users } from './schema.js';
+
+async function main() {
+  await db.insert(users).values({ email: 'hello@example.com', name: 'Example User' });
+}
+
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

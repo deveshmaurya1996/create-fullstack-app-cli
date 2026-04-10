@@ -1,0 +1,15 @@
+<script lang="ts">
+  import Navbar from './Navbar.svelte';
+</script>
+
+<div class="layout">
+  <Navbar />
+  <main class="content">
+    <slot />
+  </main>
+</div>
+
+<style>
+  .layout { min-height: 100vh; }
+  .content { padding: 1rem 1.5rem; }
+</style>

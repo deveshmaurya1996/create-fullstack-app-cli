@@ -1,0 +1,34 @@
+import { createRouter, createWebHistory } from 'vue-router';
+import AboutPage from '../pages/About.vue';
+import HomePage from '../pages/Home.vue';
+import NotFoundPage from '../pages/NotFound.vue';
+{{#if hasAuth}}
+import DashboardPage from '../pages/Dashboard.vue';
+import LoginPage from '../pages/Login.vue';
+import { useAuth } from '../composables/useAuth';
+{{/if}}
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    { path: '/', name: 'home', component: HomePage },
+    { path: '/about', name: 'about', component: AboutPage },
+{{#if hasAuth}}
+    { path: '/login', name: 'login', component: LoginPage },
+    { path: '/dashboard', name: 'dashboard', component: DashboardPage, meta: { requiresAuth: true } },
+{{/if}}
+    { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFoundPage },
+  ],
+});
+
+{{#if hasAuth}}
+router.beforeEach((to) => {
+  const { isAuthenticated } = useAuth();
+  if (to.meta.requiresAuth && !isAuthenticated.value) {
+    return { name: 'login' };
+  }
+  return true;
+});
+{{/if}}
+
+export default router;

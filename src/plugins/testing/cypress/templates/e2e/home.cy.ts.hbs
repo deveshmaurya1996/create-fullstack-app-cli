@@ -1,0 +1,6 @@
+describe('home', () => {
+  it('loads home page', () => {
+    cy.visit('/');
+    cy.url().should('include', '/');
+  });
+});

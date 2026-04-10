@@ -1,0 +1,27 @@
+import { Text, Switch, View, StyleSheet } from 'react-native';
+import { useState } from 'react';
+import { Screen } from '../components/Screen';
+
+export default function SettingsScreen() {
+  const [notifications, setNotifications] = useState(true);
+  return (
+    <Screen>
+      <Text style={styles.title}>Settings</Text>
+      <View style={styles.row}>
+        <Text style={styles.label}>Notifications</Text>
+        <Switch value={notifications} onValueChange={setNotifications} />
+      </View>
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  title: { fontSize: 22, fontWeight: '600', marginBottom: 16 },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  label: { fontSize: 16 },
+});

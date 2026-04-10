@@ -1,0 +1,19 @@
+<script setup lang="ts">
+import { apiUrl, appName } from '../lib/config';
+</script>
+
+<template>
+  <section>
+    <h1>Welcome to {{ "{{" }} appName {{ "}}" }}</h1>
+    <p>Vue 3 + Vite starter.</p>
+    <ul>
+      <li><RouterLink to="/about">About</RouterLink></li>
+{{#if hasAuth}}
+      <li><RouterLink to="/dashboard">Dashboard</RouterLink> (protected)</li>
+{{/if}}
+    </ul>
+{{#if hasBackend}}
+    <p>API base URL: <code>{{ "{{" }} apiUrl {{ "}}" }}</code></p>
+{{/if}}
+  </section>
+</template>

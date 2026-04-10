@@ -1,0 +1,22 @@
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+
+export interface AppSliceState {
+  ready: boolean;
+}
+
+const initialState: AppSliceState = {
+  ready: false,
+};
+
+const appSlice = createSlice({
+  name: 'app',
+  initialState,
+  reducers: {
+    setReady: (state, action: PayloadAction<boolean>) => {
+      state.ready = action.payload;
+    },
+  },
+});
+
+export const { setReady } = appSlice.actions;
+export default appSlice.reducer;

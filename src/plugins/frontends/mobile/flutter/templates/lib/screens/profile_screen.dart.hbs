@@ -1,0 +1,41 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../utils/constants.dart';
+
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Profile')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleAvatar(
+              radius: 32,
+              child: Text(
+                kAppName.isNotEmpty ? kAppName[0].toUpperCase() : '?',
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(kAppName, style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 8),
+            Text(
+              'Hook this screen up to your user API.',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const Spacer(),
+            FilledButton.tonal(
+              onPressed: () => context.pop(),
+              child: const Text('Back'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

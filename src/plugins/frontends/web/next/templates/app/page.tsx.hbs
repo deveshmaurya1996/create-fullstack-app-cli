@@ -1,0 +1,26 @@
+import Link from 'next/link';
+import { apiUrl, appName } from '@/lib/config';
+
+export default function HomePage() {
+  return (
+    <div>
+      <h1>Welcome to {appName}</h1>
+      <p>Next.js App Router starter.</p>
+      <ul>
+        <li>
+          <Link href="/about">About</Link>
+        </li>
+{{#if hasAuth}}
+        <li>
+          <Link href="/dashboard">Dashboard</Link> (protected)
+        </li>
+{{/if}}
+      </ul>
+{{#if hasBackend}}
+      <p>
+        API base URL: <code>{apiUrl}</code>
+      </p>
+{{/if}}
+    </div>
+  );
+}

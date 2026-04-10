@@ -1,0 +1,10 @@
+import { getRedis } from './redis-connection.js';
+
+export async function checkRedisHealth(): Promise<boolean> {
+  try {
+    const pong = await getRedis().ping();
+    return pong === 'PONG';
+  } catch {
+    return false;
+  }
+}

@@ -1,0 +1,14 @@
+import tracer from 'dd-trace';
+
+let initialized = false;
+
+export function initDatadog(): void {
+  if (initialized) return;
+  initialized = true;
+
+  tracer.init({
+    service: process.env.DD_SERVICE || 'app-service',
+    env: process.env.DD_ENV || process.env.NODE_ENV || 'development',
+    logInjection: true,
+  });
+}

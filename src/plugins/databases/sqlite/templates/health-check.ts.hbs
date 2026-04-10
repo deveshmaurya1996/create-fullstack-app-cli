@@ -1,0 +1,10 @@
+import { getSqliteDatabase } from './db-connection.js';
+
+export function checkSqliteHealth(): boolean {
+  try {
+    getSqliteDatabase().prepare('SELECT 1').get();
+    return true;
+  } catch {
+    return false;
+  }
+}

@@ -1,412 +1,283 @@
-import * as C from "./choices-registry.js";
-import type { RawPromptAnswers } from "./types.js";
-import {
-  STACK_PACKAGE_LIMIT,
-  getBackendBasicPackageChoices,
-  getBackendBasicPackageDefaults,
-  getFrontendBasicPackageChoices,
-  getFrontendBasicPackageDefaults,
-} from "../setup/basic-package-catalog.js";
-import {
-  isFlutterFrontend,
-  isMobileAppType,
-  wantsBackend,
-  wantsFrontend,
-  wantsReactNativeStylePackages,
-  wantsWebFrontendStack,
-} from "./visibility.js";
+import type { PromptDefinition } from './types.js';
+import { visibilityRules } from './visibility.js';
+import { sanitizeProjectName } from '../shared/utils.js';
 
-export type ListChoiceItem = string | { name: string; value: string };
+export const promptDefinitions: PromptDefinition[] = [
+  // ─── Phase 1: Project Shape ─────────────────────────────
+  {
+    id: 'projectName',
+    phase: 'project-shape',
+    type: 'text',
+    message: 'What is your project name?',
+    defaultValue: 'my-app',
+    visible: visibilityRules.projectName!,
+    validate: (value: unknown) => {
+      const name = String(value).trim();
+      if (!name) return 'Project name is required';
+      if (!/^[a-zA-Z0-9-_]+$/.test(name)) return 'Only letters, numbers, hyphens, and underscores';
+      if (name.length > 100) return 'Name too long (max 100 characters)';
+      return true;
+    },
+    transform: (value: unknown) => sanitizeProjectName(String(value)),
+  },
+  {
+    id: 'structure',
+    phase: 'project-shape',
+    type: 'select',
+    message: 'Project structure:',
+    defaultValue: 'single-app',
+    visible: visibilityRules.structure!,
+  },
+  {
+    id: 'scope',
+    phase: 'project-shape',
+    type: 'select',
+    message: 'Project scope:',
+    defaultValue: 'fullstack',
+    visible: visibilityRules.scope!,
+  },
+  {
+    id: 'projectType',
+    phase: 'project-shape',
+    type: 'select',
+    message: 'What type of project?',
+    defaultValue: 'saas',
+    visible: visibilityRules.projectType!,
+  },
+  {
+    id: 'monorepoTool',
+    phase: 'project-shape',
+    type: 'select',
+    message: 'Monorepo tool:',
+    defaultValue: 'turborepo',
+    visible: visibilityRules.monorepoTool!,
+  },
+  {
+    id: 'packageManager',
+    phase: 'project-shape',
+    type: 'select',
+    message: 'Package manager:',
+    defaultValue: 'pnpm',
+    visible: visibilityRules.packageManager!,
+  },
 
-export type QuestionDef = {
-  key: keyof RawPromptAnswers;
-  type: "input" | "list" | "confirm" | "checkbox";
-  message: string | ((ctx: RawPromptAnswers) => string);
-  choices?:
-    | readonly ListChoiceItem[]
-    | ((ctx: RawPromptAnswers) => readonly ListChoiceItem[]);
-  when?: (ctx: RawPromptAnswers) => boolean;
-  getDefault?: (draft: RawPromptAnswers) => unknown;
-  validate?: (v: string) => true | string;
-};
+  // ─── Phase 2: Frontend ──────────────────────────────────
+  {
+    id: 'platform',
+    phase: 'frontend',
+    type: 'select',
+    message: 'Target platform:',
+    defaultValue: 'web',
+    visible: visibilityRules.platform!,
+  },
+  {
+    id: 'webFramework',
+    phase: 'frontend',
+    type: 'select',
+    message: 'Web framework:',
+    choicesRef: 'frontend-web',
+    visible: visibilityRules.webFramework!,
+  },
+  {
+    id: 'mobileFramework',
+    phase: 'frontend',
+    type: 'select',
+    message: 'Mobile framework:',
+    choicesRef: 'frontend-mobile',
+    visible: visibilityRules.mobileFramework!,
+  },
+  {
+    id: 'webStyling',
+    phase: 'frontend',
+    type: 'select',
+    message: 'Web styling solution:',
+    choicesRef: 'styling-web',
+    visible: visibilityRules.webStyling!,
+  },
+  {
+    id: 'mobileStyling',
+    phase: 'frontend',
+    type: 'select',
+    message: 'Mobile styling solution:',
+    choicesRef: 'styling-mobile',
+    visible: visibilityRules.mobileStyling!,
+  },
+  {
+    id: 'stateManagement',
+    phase: 'frontend',
+    type: 'multiselect',
+    message: 'State management (select multiple):',
+    choicesRef: 'state',
+    visible: visibilityRules.stateManagement!,
+  },
+  {
+    id: 'formLibrary',
+    phase: 'frontend',
+    type: 'select',
+    message: 'Form library:',
+    choicesRef: 'forms',
+    visible: visibilityRules.formLibrary!,
+  },
+  {
+    id: 'uiLibrary',
+    phase: 'frontend',
+    type: 'select',
+    message: 'UI component library:',
+    choicesRef: 'ui-library',
+    visible: visibilityRules.uiLibrary!,
+  },
+  {
+    id: 'apiClient',
+    phase: 'frontend',
+    type: 'select',
+    message: 'API client:',
+    choicesRef: 'api-client',
+    visible: visibilityRules.apiClient!,
+  },
+  {
+    id: 'mobileNavigation',
+    phase: 'frontend',
+    type: 'select',
+    message: 'Mobile navigation:',
+    choicesRef: 'mobile-navigation',
+    visible: visibilityRules.mobileNavigation!,
+  },
+  {
+    id: 'frontendExtras',
+    phase: 'frontend',
+    type: 'multiselect',
+    message: 'Frontend extras (select multiple):',
+    choicesRef: 'frontend-extras',
+    visible: visibilityRules.frontendExtras!,
+  },
 
-export const QUESTION_DEFS: QuestionDef[] = [
+  // ─── Phase 3: Backend ───────────────────────────────────
   {
-    key: "name",
-    type: "input",
-    message: "Project name:",
-    when: () => true,
-    getDefault: (d) => d.name ?? "",
-    validate: (v) => v.trim().length > 0 || "Project name is required.",
+    id: 'backendFramework',
+    phase: 'backend',
+    type: 'select',
+    message: 'Backend framework:',
+    choicesRef: 'backend',
+    visible: visibilityRules.backendFramework!,
   },
   {
-    key: "projectStructure",
-    type: "list",
-    message: "Project structure:",
-    choices: (a) =>
-      a.projectType === "Mobile app" ? (["Single app"] as const) : C.PROJECT_STRUCTURES,
-    when: () => true,
-    getDefault: (d) =>
-      d.projectType === "Mobile app" ? "Single app" : d.projectStructure ?? "Monorepo (apps + packages)",
+    id: 'backendTs',
+    phase: 'backend',
+    type: 'select',
+    message: 'TypeScript for backend?',
+    defaultValue: 'yes',
+    visible: visibilityRules.backendTs!,
+    transform: (value: unknown) => value === 'yes',
   },
   {
-    key: "singleAppScope",
-    type: "list",
-    message: "What should this single repo contain?",
-    choices: C.SINGLE_APP_SCOPES,
-    when: (a) => a.projectStructure === "Single app",
-    getDefault: (d) => d.singleAppScope ?? "Full stack (frontend + backend)",
+    id: 'apiStyle',
+    phase: 'backend',
+    type: 'select',
+    message: 'API style:',
+    defaultValue: 'rest',
+    visible: visibilityRules.apiStyle!,
   },
   {
-    key: "projectType",
-    type: "list",
-    message: "Project type:",
-    choices: C.PROJECT_TYPES,
-    when: (a) =>
-      !(
-        a.projectStructure === "Single app" &&
-        a.singleAppScope === "Full stack (frontend + backend)"
-      ),
-    getDefault: (d) => d.projectType ?? "SaaS app",
+    id: 'database',
+    phase: 'backend',
+    type: 'select',
+    message: 'Database:',
+    choicesRef: 'database',
+    visible: visibilityRules.database!,
   },
   {
-    key: "monorepoTool",
-    type: "list",
-    message: "Monorepo tool:",
-    choices: C.MONOREPO_TOOLS,
-    when: (a) =>
-      a.projectStructure === "Monorepo (apps + packages)" ||
-      a.projectStructure === "Microservices (multiple backend services)",
-    getDefault: (d) => d.monorepoTool ?? "Turborepo",
+    id: 'orm',
+    phase: 'backend',
+    type: 'select',
+    message: 'ORM / ODM:',
+    choicesRef: 'orm',
+    visible: visibilityRules.orm!,
   },
   {
-    key: "packageManager",
-    type: "list",
-    message: "Package manager:",
-    choices: C.PACKAGE_MANAGERS,
-    when: () => true,
-    getDefault: (d) => d.packageManager ?? "npm",
+    id: 'redis',
+    phase: 'backend',
+    type: 'select',
+    message: 'Redis cache?',
+    defaultValue: 'no',
+    visible: visibilityRules.redis!,
+    transform: (value: unknown) => value === 'yes',
   },
   {
-    key: "frontendPlatform",
-    type: "list",
-    message: "Frontend platform:",
-    choices: C.FRONTEND_PLATFORMS,
-    when: (a) => wantsFrontend(a) && !isMobileAppType(a),
-    getDefault: (d) => d.frontendPlatform ?? "Web",
+    id: 'backendExtras',
+    phase: 'backend',
+    type: 'multiselect',
+    message: 'Backend extras (select multiple):',
+    choicesRef: 'backend-extras',
+    visible: visibilityRules.backendExtras!,
+  },
+
+  // ─── Phase 4: Shared Concerns ───────────────────────────
+  {
+    id: 'auth',
+    phase: 'shared-concerns',
+    type: 'select',
+    message: 'Authentication:',
+    choicesRef: 'auth',
+    visible: visibilityRules.auth!,
   },
   {
-    key: "frontend",
-    type: "list",
-    message: (a) => {
-      if (isMobileAppType(a) || a.frontendPlatform === "Mobile") return "Mobile app framework:";
-      return "Web framework:";
-    },
-    choices: (a) => {
-      if (isMobileAppType(a)) return [...C.MOBILE_FRAMEWORKS];
-      if (a.frontendPlatform === "Web") return [...C.WEB_FRAMEWORKS];
-      if (a.frontendPlatform === "Mobile") return [...C.MOBILE_FRAMEWORKS];
-      return [];
-    },
-    when: (a) =>
-      wantsFrontend(a) &&
-      (isMobileAppType(a) || a.frontendPlatform === "Web" || a.frontendPlatform === "Mobile"),
-    getDefault: (d) => {
-      if (isMobileAppType(d)) return d.frontend ?? "Expo (React Native)";
-      if (d.frontendPlatform === "Web") return d.frontend ?? "Next.js";
-      if (d.frontendPlatform === "Mobile") return d.frontend ?? "Expo (React Native)";
-      return d.frontend ?? "Next.js";
-    },
+    id: 'testing',
+    phase: 'shared-concerns',
+    type: 'multiselect',
+    message: 'Testing tools (select multiple):',
+    choicesRef: 'testing',
+    visible: visibilityRules.testing!,
   },
   {
-    key: "frontendTypescript",
-    type: "confirm",
-    message: "Use TypeScript for frontend?",
-    when: (a) =>
-      wantsFrontend(a) &&
-      (isMobileAppType(a) || (a.frontend !== undefined && a.frontend !== "None")) &&
-      !isFlutterFrontend(a.frontend),
-    getDefault: (d) => d.frontendTypescript ?? true,
+    id: 'logging',
+    phase: 'shared-concerns',
+    type: 'select',
+    message: 'Logging:',
+    choicesRef: 'logging',
+    visible: visibilityRules.logging!,
   },
   {
-    key: "frontendStyling",
-    type: "list",
-    message: "Styling/UI:",
-    choices: C.FRONTEND_STYLING,
-    when: (a) => wantsWebFrontendStack(a),
-    getDefault: (d) => d.frontendStyling ?? "Tailwind CSS",
+    id: 'monitoring',
+    phase: 'shared-concerns',
+    type: 'select',
+    message: 'Monitoring:',
+    choicesRef: 'monitoring',
+    visible: visibilityRules.monitoring!,
   },
   {
-    key: "stateData",
-    type: "list",
-    message: (a) =>
-      wantsReactNativeStylePackages(a)
-        ? "State/Data (Expo / React Native — same options as web, all work in RN):"
-        : "State/Data:",
-    choices: (a) =>
-      wantsReactNativeStylePackages(a) ? [...C.STATE_DATA_EXPO_LABELS] : C.STATE_DATA,
-    when: (a) =>
-      wantsFrontend(a) &&
-      (isMobileAppType(a) || (a.frontend !== undefined && a.frontend !== "None")) &&
-      !isFlutterFrontend(a.frontend),
-    getDefault: (d) => d.stateData ?? "React Query",
+    id: 'devtools',
+    phase: 'shared-concerns',
+    type: 'multiselect',
+    message: 'Dev tools (select multiple):',
+    choicesRef: 'devtools',
+    visible: visibilityRules.devtools!,
   },
   {
-    key: "frontendForms",
-    type: "list",
-    message: (a) =>
-      wantsReactNativeStylePackages(a) ? "Forms (Expo / React Native):" : "Forms:",
-    choices: (a) =>
-      wantsReactNativeStylePackages(a) ? [...C.FRONTEND_FORMS_EXPO_LABELS] : C.FRONTEND_FORMS,
-    when: (a) =>
-      wantsFrontend(a) &&
-      (isMobileAppType(a) || (a.frontend !== undefined && a.frontend !== "None")) &&
-      !isFlutterFrontend(a.frontend),
-    getDefault: (d) => d.frontendForms ?? "React Hook Form",
+    id: 'devops',
+    phase: 'shared-concerns',
+    type: 'multiselect',
+    message: 'DevOps & CI/CD (select multiple):',
+    choicesRef: 'devops',
+    visible: visibilityRules.devops!,
   },
   {
-    key: "frontendExtras",
-    type: "checkbox",
-    message: "Frontend extras (multiple):",
-    choices: C.FRONTEND_EXTRAS,
-    when: (a) => wantsWebFrontendStack(a),
-    getDefault: (d) => d.frontendExtras ?? [],
-  },
-  {
-    key: "apiClient",
-    type: "list",
-    message: (a) =>
-      wantsReactNativeStylePackages(a) ? "API client (Expo / React Native):" : "API client:",
-    choices: (a) =>
-      wantsReactNativeStylePackages(a) ? [...C.API_CLIENTS_EXPO_LABELS] : C.API_CLIENTS,
-    when: (a) =>
-      wantsFrontend(a) &&
-      (isMobileAppType(a) || (a.frontend !== undefined && a.frontend !== "None")) &&
-      !isFlutterFrontend(a.frontend),
-    getDefault: (d) => d.apiClient ?? "Axios",
-  },
-  {
-    key: "needBackend",
-    type: "confirm",
-    message: "Do you need backend?",
-    when: (a) =>
-      !isMobileAppType(a) &&
-      a.projectStructure !== "Single app" &&
-      a.projectType !== "API only" &&
-      a.projectType !== "Full product (web + api)",
-    getDefault: (d) => d.needBackend ?? true,
-  },
-  {
-    key: "basicPackagesFrontend",
-    type: "checkbox",
-    message: (d) =>
-      `Recommended packages — ${d.frontend ?? "Next.js"} frontend (npm, top ${STACK_PACKAGE_LIMIT}; toggle off what you do not need):`,
-    choices: (d) =>
-      getFrontendBasicPackageChoices(
-        isMobileAppType(d) ? d.frontend ?? "Expo (React Native)" : d.frontend ?? "Next.js"
-      ),
-    when: (a) =>
-      wantsFrontend(a) &&
-      (isMobileAppType(a) || (a.frontend !== undefined && a.frontend !== "None")),
-    getDefault: (d) => {
-      const fw = isMobileAppType(d) ? d.frontend ?? "Expo (React Native)" : d.frontend ?? "Next.js";
-      const choices = getFrontendBasicPackageChoices(fw);
-      const prior = d.basicPackagesFrontend ?? getFrontendBasicPackageDefaults(fw);
-      return prior.filter((c) => choices.includes(c));
-    },
-  },
-  {
-    key: "backend",
-    type: "list",
-    message: "Backend:",
-    choices: C.BACKENDS,
-    when: (a) => wantsBackend(a),
-    getDefault: (d) => d.backend ?? "NestJS",
-  },
-  {
-    key: "backendTypescript",
-    type: "confirm",
-    message: "Use TypeScript for backend?",
-    when: (a) =>
-      wantsBackend(a) &&
-      a.backend !== "FastAPI" &&
-      a.backend !== "Django (Python)" &&
-      a.backend !== "Spring Boot (Java)",
-    getDefault: (d) => d.backendTypescript ?? true,
-  },
-  {
-    key: "apiType",
-    type: "list",
-    message: "API type:",
-    choices: (a) => [...C.getApiTypesForBackend(a.backend)],
-    when: (a) => wantsBackend(a),
-    getDefault: (d) => {
-      const allowed = new Set(C.getApiTypesForBackend(d.backend));
-      const v = d.apiType ?? "REST";
-      return allowed.has(v) ? v : "REST";
-    },
-  },
-  {
-    key: "backendUtilities",
-    type: "checkbox",
-    message: "Backend features (multiple):",
-    choices: (a) => [...C.getBackendUtilitiesForBackend(a.backend)],
-    when: (a) => wantsBackend(a),
-    getDefault: (d) => {
-      const b = d.backend ?? "Express";
-      const allowed = new Set(C.getBackendUtilitiesForBackend(b));
-      const prior = d.backendUtilities ?? C.defaultBackendUtilitiesForBackend(b);
-      return prior.filter((u) => allowed.has(u));
-    },
-  },
-  {
-    key: "database",
-    type: "list",
-    message: "Database:",
-    choices: C.DATABASES,
-    when: (a) => wantsBackend(a),
-    getDefault: (d) => d.database ?? "PostgreSQL",
-  },
-  {
-    key: "orm",
-    type: "list",
-    message: "ORM / query layer:",
-    choices: (a) => [...C.getOrmChoicesForBackend(a.backend)],
-    when: (a) => wantsBackend(a),
-    getDefault: (d) => {
-      const allowed = new Set(C.getOrmChoicesForBackend(d.backend));
-      const v = d.orm ?? C.defaultOrmForBackend(d.backend);
-      return allowed.has(v) ? v : C.defaultOrmForBackend(d.backend);
-    },
-  },
-  {
-    key: "basicPackagesBackend",
-    type: "checkbox",
-    message: (d) =>
-      `Recommended packages — ${d.backend ?? "Express"} backend (top ${STACK_PACKAGE_LIMIT}; toggle off what you do not need):`,
-    choices: (d) => getBackendBasicPackageChoices(d.backend ?? "Express"),
-    when: (a) => wantsBackend(a),
-    getDefault: (d) => {
-      const bk = d.backend ?? "Express";
-      const choices = getBackendBasicPackageChoices(bk);
-      const prior = d.basicPackagesBackend ?? getBackendBasicPackageDefaults(bk);
-      return prior.filter((c) => choices.includes(c));
-    },
-  },
-  {
-    key: "fileStorage",
-    type: "list",
-    message: "File storage:",
-    choices: C.FILE_STORAGE,
-    when: (a) => wantsFrontend(a) || wantsBackend(a),
-    getDefault: (d) => d.fileStorage ?? "Local storage",
-  },
-  {
-    key: "authentication",
-    type: "list",
-    message: "Authentication:",
-    choices: (a) => {
-      if (!wantsFrontend(a) && wantsBackend(a)) {
-        return C.AUTH_METHODS.filter((m) => m !== "NextAuth");
-      }
-      return C.AUTH_METHODS;
-    },
-    when: () => true,
-    getDefault: (d) => d.authentication ?? "JWT",
-  },
-  {
-    key: "authFeatures",
-    type: "checkbox",
-    message: "Auth features (multiple):",
-    choices: C.AUTH_FEATURES,
-    when: (a) => a.authentication !== "None",
-    getDefault: (d) => d.authFeatures ?? ["Email/password", "Role-based access (RBAC)"],
-  },
-  {
-    key: "devTools",
-    type: "checkbox",
-    message: "Dev tools (multiple):",
-    choices: C.DEV_TOOLS,
-    when: () => true,
-    getDefault: (d) => d.devTools ?? ["ESLint", "Prettier", "EditorConfig"],
-  },
-  {
-    key: "testing",
-    type: "list",
-    message: "Testing:",
-    choices: (a) => {
-      if (!wantsFrontend(a)) {
-        return C.TESTING.filter((t) => t !== "Cypress (E2E)" && t !== "Playwright");
-      }
-      return C.TESTING;
-    },
-    when: () => true,
-    getDefault: (d) => d.testing ?? "Vitest",
-  },
-  {
-    key: "logging",
-    type: "list",
-    message: "Logging:",
-    choices: C.LOGGING,
-    when: (a) => wantsBackend(a),
-    getDefault: (d) => d.logging ?? "Pino",
-  },
-  {
-    key: "monitoring",
-    type: "list",
-    message: "Monitoring:",
-    choices: (a) => {
-      if (!wantsFrontend(a)) {
-        return C.MONITORING.filter((m) => m !== "LogRocket");
-      }
-      return C.MONITORING;
-    },
-    when: () => true,
-    getDefault: (d) => d.monitoring ?? "Sentry",
-  },
-  {
-    key: "devops",
-    type: "checkbox",
-    message: "DevOps (multiple):",
-    choices: C.DEVOPS,
-    when: () => true,
-    getDefault: (d) => d.devops ?? ["Docker", "GitHub Actions"],
-  },
-  {
-    key: "deployment",
-    type: "list",
-    message: "Deployment target:",
-    choices: (a) => {
-      if (!wantsFrontend(a) && wantsBackend(a)) {
-        return C.DEPLOYMENT.filter((x) => x !== "Vercel");
-      }
-      return C.DEPLOYMENT;
-    },
-    when: (a) => !isMobileAppType(a),
-    getDefault: (d) => d.deployment ?? "Vercel",
-  },
-  {
-    key: "advancedFeatures",
-    type: "checkbox",
-    message: "Advanced features (multiple):",
-    choices: C.ADVANCED_FEATURES,
-    when: (a) => wantsBackend(a),
-    getDefault: (d) => d.advancedFeatures ?? [],
-  },
-  {
-    key: "aiFeatures",
-    type: "checkbox",
-    message: "AI features (multiple):",
-    choices: C.AI_FEATURES,
-    when: (a) => wantsFrontend(a) || wantsBackend(a),
-    getDefault: (d) => d.aiFeatures ?? [],
-  },
-  {
-    key: "setupAction",
-    type: "list",
-    message: "Review action:",
-    choices: C.SETUP_ACTIONS,
-    when: () => true,
-    getDefault: () => "Proceed setup",
+    id: 'deployment',
+    phase: 'shared-concerns',
+    type: 'multiselect',
+    message: 'Deployment (select multiple):',
+    choicesRef: 'deployment',
+    visible: visibilityRules.deployment!,
   },
 ];
+
+export function getPromptsForPhase(phase: string): PromptDefinition[] {
+  return promptDefinitions.filter((p) => p.phase === phase);
+}
+
+export function getPromptById(id: string): PromptDefinition | undefined {
+  return promptDefinitions.find((p) => p.id === id);
+}
+
+export function getAllPromptIds(): string[] {
+  return promptDefinitions.map((p) => p.id);
+}

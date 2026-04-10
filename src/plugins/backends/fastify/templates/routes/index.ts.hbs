@@ -1,0 +1,8 @@
+import type { FastifyInstance } from 'fastify';
+import { healthRoutes } from './health.js';
+import { userRoutes } from './users.js';
+
+export async function registerRoutes(app: FastifyInstance): Promise<void> {
+  await app.register(healthRoutes, { prefix: '/health' });
+  await app.register(userRoutes, { prefix: '/users' });
+}

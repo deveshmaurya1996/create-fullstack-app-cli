@@ -1,0 +1,5 @@
+import { format, parseISO } from 'date-fns';
+
+export function formatDate(isoString: string, pattern = 'yyyy-MM-dd'): string {
+  return format(parseISO(isoString), pattern);
+}

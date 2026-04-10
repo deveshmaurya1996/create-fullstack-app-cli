@@ -1,0 +1,128 @@
+import type {
+  Plugin,
+  TemplateContext,
+  Target,
+  PackageJsonLocation,
+  MergedDependencies,
+} from '../shared/types.js';
+import { TARGETS } from '../shared/constants.js';
+import { sortKeys } from '../shared/utils.js';
+import { logger } from '../shared/logger.js';
+
+const CATEGORY_TARGET_MAP: Record<string, Target> = {
+  'frontend-web': TARGETS.FRONTEND,
+  'frontend-mobile': TARGETS.FRONTEND,
+  'styling-web': TARGETS.FRONTEND,
+  'styling-mobile': TARGETS.FRONTEND,
+  'state': TARGETS.FRONTEND,
+  'forms': TARGETS.FRONTEND,
+  'ui-library': TARGETS.FRONTEND,
+  'api-client': TARGETS.FRONTEND,
+  'mobile-navigation': TARGETS.FRONTEND,
+  'frontend-extras': TARGETS.FRONTEND,
+  'backend': TARGETS.BACKEND,
+  'api-style': TARGETS.BACKEND,
+  'database': TARGETS.BACKEND,
+  'orm': TARGETS.BACKEND,
+  'auth': TARGETS.BACKEND,
+  'backend-extras': TARGETS.BACKEND,
+  'logging': TARGETS.BACKEND,
+  'monitoring': TARGETS.ROOT,
+  'testing': TARGETS.ROOT,
+  'devtools': TARGETS.ROOT,
+  'devops': TARGETS.ROOT,
+  'deployment': TARGETS.ROOT,
+};
+
+export function resolveDependencies(
+  plugins: Plugin[],
+  packageJsonTargets: PackageJsonLocation[],
+  context: TemplateContext
+): Map<string, MergedDependencies> {
+  const result = new Map<string, MergedDependencies>();
+
+  for (const target of packageJsonTargets) {
+    result.set(target.path, {
+      dependencies: {},
+      devDependencies: {},
+    });
+  }
+
+  for (const plugin of plugins) {
+    const targetKey = resolveTargetForPlugin(plugin, packageJsonTargets, context);
+
+    if (!targetKey) {
+      logger.warn(
+        `Could not resolve target package.json for plugin "${plugin.meta.id}" (category: ${plugin.meta.category})`
+      );
+      continue;
+    }
+
+    const merged = result.get(targetKey);
+    if (!merged) continue;
+
+    for (const dep of plugin.meta.deps) {
+      if (merged.dependencies[dep.name]) {
+        if (merged.dependencies[dep.name] !== dep.version) {
+          logger.warn(
+            `Dependency version conflict for "${dep.name}": ` +
+            `"${merged.dependencies[dep.name]}" vs "${dep.version}" (from ${plugin.meta.id})`
+          );
+        }
+      }
+      merged.dependencies[dep.name] = dep.version;
+    }
+
+    for (const dep of plugin.meta.devDeps) {
+      if (merged.devDependencies[dep.name]) {
+        if (merged.devDependencies[dep.name] !== dep.version) {
+          logger.warn(
+            `Dev dependency version conflict for "${dep.name}": ` +
+            `"${merged.devDependencies[dep.name]}" vs "${dep.version}" (from ${plugin.meta.id})`
+          );
+        }
+      }
+      merged.devDependencies[dep.name] = dep.version;
+    }
+  }
+
+  for (const [key, merged] of result) {
+    result.set(key, {
+      dependencies: sortKeys(merged.dependencies),
+      devDependencies: sortKeys(merged.devDependencies),
+    });
+  }
+
+  return result;
+}
+
+function resolveTargetForPlugin(
+  plugin: Plugin,
+  packageJsonTargets: PackageJsonLocation[],
+  _context: TemplateContext
+): string | null {
+  const categoryTarget = CATEGORY_TARGET_MAP[plugin.meta.category];
+
+  if (!categoryTarget) {
+    const rootTarget = packageJsonTargets.find((t) => t.target === TARGETS.ROOT);
+    return rootTarget?.path || null;
+  }
+
+  if (plugin.meta.category === 'monitoring' || plugin.meta.category === 'testing') {
+    const rootTarget = packageJsonTargets.find((t) => t.target === TARGETS.ROOT);
+    return rootTarget?.path || null;
+  }
+
+  if (plugin.meta.category === 'auth') {
+    const backendTarget = packageJsonTargets.find((t) => t.target === TARGETS.BACKEND);
+    if (backendTarget) return backendTarget.path;
+    const rootTarget = packageJsonTargets.find((t) => t.target === TARGETS.ROOT);
+    return rootTarget?.path || null;
+  }
+
+  const target = packageJsonTargets.find((t) => t.target === categoryTarget);
+  if (target) return target.path;
+
+  const rootTarget = packageJsonTargets.find((t) => t.target === TARGETS.ROOT);
+  return rootTarget?.path || packageJsonTargets[0]?.path || null;
+}

@@ -1,0 +1,15 @@
+import 'reflect-metadata';
+import { AppDataSource } from './data-source.js';
+import { User } from './entities/user.entity.js';
+
+async function main() {
+  await AppDataSource.initialize();
+  const repo = AppDataSource.getRepository(User);
+  await repo.save(repo.create({ email: 'hello@example.com', name: 'Example User' }));
+  await AppDataSource.destroy();
+}
+
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

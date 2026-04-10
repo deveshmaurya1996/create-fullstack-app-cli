@@ -1,0 +1,13 @@
+import { Router } from 'express';
+import { sendPushNotification } from '../services/push.service';
+
+export const pushRouter = Router();
+
+pushRouter.post('/push/send', async (req, res, next) => {
+  try {
+    const messageId = await sendPushNotification(req.body);
+    res.json({ ok: true, messageId });
+  } catch (error) {
+    next(error);
+  }
+});

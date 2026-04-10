@@ -1,0 +1,97 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../utils/constants.dart';
+{{#if hasAuth}}
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
+{{/if}}
+{{#if hasBackend}}
+import '../services/api_service.dart';
+{{/if}}
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text(kAppName)),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text('Welcome', style: Theme.of(context).textTheme.headlineSmall),
+          const SizedBox(height: 16),
+          FilledButton(
+            onPressed: () => context.push('/profile'),
+            child: const Text('Profile'),
+          ),
+          const SizedBox(height: 8),
+          FilledButton.tonal(
+            onPressed: () => context.push('/settings'),
+            child: const Text('Settings'),
+          ),
+{{#if hasBackend}}
+          const SizedBox(height: 24),
+          const _HealthCard(),
+{{/if}}
+{{#if hasAuth}}
+          const SizedBox(height: 24),
+          OutlinedButton(
+            onPressed: () => context.read<AuthProvider>().logout(),
+            child: const Text('Log out'),
+          ),
+{{/if}}
+        ],
+      ),
+    );
+  }
+}
+
+{{#if hasBackend}}
+class _HealthCard extends StatefulWidget {
+  const _HealthCard();
+
+  @override
+  State<_HealthCard> createState() => _HealthCardState();
+}
+
+class _HealthCardState extends State<_HealthCard> {
+  String _status = 'Checking API…';
+
+  @override
+  void initState() {
+    super.initState();
+    _run();
+  }
+
+  Future<void> _run() async {
+    final api = ApiService();
+    final json = await api.getJson('/health');
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _status = json != null ? 'API reachable' : 'API not reachable';
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Backend', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            Text(_status),
+            const SizedBox(height: 4),
+            Text('Base: $kApiBaseUrl', style: Theme.of(context).textTheme.bodySmall),
+          ],
+        ),
+      ),
+    );
+  }
+}
+{{/if}}
