@@ -59,6 +59,15 @@ Output is a **starting point**: install dependencies, follow the printed next st
 
 ## Changelog
 
+### 2.0.0
+
+**Major release** — plugin + layout generator is the supported architecture; treat this as the baseline for new issues and PRs.
+
+- **Breaking:** Removed the legacy imperative `src/setup/` pipeline and related exports; scaffolding runs only through the wizard → `generate()` pipeline.
+- **CLI:** Correct published `bin` (`dist/bin/create-fullstack-app.js`); optional repo-root `bin/` wrapper delegates to the built CLI after `npm run build`.
+- **Mobile:** Expo defaults to **Expo Router**; React Native CLI defaults to **React Navigation**; explicit wizard choices override defaults.
+- **Tooling:** `VERSION` / `--version` aligned with package version; `.gitignore` includes `*.tgz` for local packs.
+
 ### 0.1.4
 
 - Pluggable generator: layouts + plugin `meta` / `file-map` / Handlebars templates; wizard wired to `generate()`.
