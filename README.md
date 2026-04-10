@@ -1,93 +1,182 @@
-# create-fullstack-app
+<p align="center">
+  <a href="https://www.npmjs.com/package/@dartix-software-solutions/create-fullstack-app">
+    <img src="https://img.shields.io/npm/v/@dartix-software-solutions/create-fullstack-app?style=flat-square&color=cb3837&logo=npm&label=npm" alt="npm version" />
+  </a>
+  <a href="https://www.npmjs.com/package/@dartix-software-solutions/create-fullstack-app">
+    <img src="https://img.shields.io/npm/l/@dartix-software-solutions/create-fullstack-app?style=flat-square&label=license" alt="License" />
+  </a>
+  <img src="https://img.shields.io/badge/node-%3E%3D18-339933?style=flat-square&logo=node.js&logoColor=white" alt="Node.js 18+" />
+</p>
 
-Interactive CLI that scaffolds modern full-stack projects: you choose structure, frameworks, data layer, auth, DevOps, and extras; the tool emits a working repo with sensible defaults.
+<h1 align="center">create-fullstack-app</h1>
 
-Under the hood, generation is **plugin-driven**: each stack piece (frontend, backend, auth, testing, and so on) contributes metadata, optional dependencies, and Handlebars templates. **Layouts** (single app, monorepo, microservices) decide where files land and how many `package.json` targets exist. The wizard collects answers, resolves active plugins, runs compatibility checks, then writes files through one pipeline—so new combinations are added by extending plugins rather than one-off scripts.
+<p align="center">
+  <strong>Interactive CLI to scaffold production-style full-stack projects</strong><br />
+  Pick your structure, frameworks, data layer, auth, DevOps, and extras—get a working repo with sensible defaults.
+</p>
 
-## Quick start
+<p align="center">
+  <a href="#quick-start">Quick start</a> ·
+  <a href="#feature-matrix">Features</a> ·
+  <a href="#how-it-works">How it works</a> ·
+  <a href="#requirements">Requirements</a> ·
+  <a href="#links">Links</a> ·
+  <a href="#help-contributing-contact">Help & contact</a> ·
+  <a href="#changelog">Changelog</a>
+</p>
 
-From the directory where you want the new project folder to appear:
+---
+
+<a id="overview"></a>
+
+## ✨ Overview
+
+**create-fullstack-app** walks you through an interactive wizard and emits a project tailored to your choices. Generated code is a **starting point**: install dependencies, follow the printed next steps and the generated `README`, and configure `.env` for your environment.
+
+---
+
+<a id="quick-start"></a>
+
+## 🚀 Quick start
+
+Run from the directory where the **new project folder** should be created:
 
 ```bash
 npx @dartix-software-solutions/create-fullstack-app@latest
 ```
 
-Or with npm’s create initializer (same package):
+**npm create** (same package):
 
 ```bash
 npm create @dartix-software-solutions/fullstack-app@latest
 ```
 
-You can also install globally:
+**Global install:**
 
 ```bash
 npm install -g @dartix-software-solutions/create-fullstack-app
 create-fullstack-app
 ```
 
-The wizard asks for a **project name** and walks the prompts. Use **`--yes`** (`-y`) to accept defaults where supported. The target folder must be **missing or empty**; if it already has files, the CLI exits with an error so you do not accidentally overwrite a non-empty tree.
-
-## What you get
-
-- **Layouts** — Monorepo (apps + packages), single repo, or a microservices-oriented tree; optional Turborepo, Nx, or a basic workspace where applicable.
-- **Project types** — Flows such as SaaS, API-only, admin, mobile, or full web + API (choices depend on structure and scope).
-- **Package manager** — npm, pnpm, yarn, or bun.
-- **Web frontends** — Next.js, Vite (React), Remix, Astro, SvelteKit, Vue (Vite), or none.
-- **Mobile** — Expo (React Native), React Native (CLI), or Flutter; **Expo defaults to Expo Router**, **React Native CLI defaults to React Navigation** (you can switch navigation in the wizard when both are offered).
-- **Styling & UI** — Tailwind, Shadcn UI, Material UI, Chakra UI, Ant Design, Styled Components, or vanilla CSS (per stack).
-- **Client state & data** — React Query, Zustand, Redux Toolkit, Jotai, MobX, or none; forms; HTTP / tRPC / GraphQL clients; optional extras (charts, tables, motion, dates, icons).
-- **Backends** — NestJS, Express, Fastify, FastAPI, Hono, Koa, Django, Spring Boot, and others when you include a backend.
-- **APIs** — REST, tRPC, GraphQL, or gRPC where the backend supports it; utilities such as validation, OpenAPI, CORS, security headers, rate limits.
-- **Data** — Databases (e.g. PostgreSQL, MySQL, MongoDB, SQLite, Redis); ORMs (Prisma, Drizzle, TypeORM, Mongoose, Django ORM, etc.) depending on stack.
-- **Auth** — JWT, NextAuth, Clerk, Auth0, Firebase, Supabase, Lucia, and more, with feature-oriented options where relevant.
-- **Quality & testing** — ESLint, Prettier, Husky, lint-staged, Commitlint, EditorConfig; Jest, Vitest, Cypress, Playwright, Detox, and related plugins.
-- **Ops & deploy** — Docker, Compose, Kubernetes hints, GitHub Actions, deployment targets (Vercel, AWS, Railway, Render, etc.) when selected.
-- **Advanced backend** — Queues, cron, email, uploads, WebSockets, Swagger, and other backend-extras plugins.
-- **AI (optional)** — Plugins that add OpenAI- or cloud-oriented env vars and starter wiring when chosen.
-
-Output is a **starting point**: install dependencies, follow the printed next steps and `README` in the generated project, and fill in `.env` for your environment.
-
-## Requirements
-
-**Node.js 18+** (CLI and many generated stacks assume a modern runtime).
-
-## Links
-
-- **Developer:** [Devesh Maurya](https://devesh-maurya-portfolio.vercel.app/)
-- **Dartix:** [dartix.live](https://www.dartix.live/)
-- **Blog (internals, git, npm releases):** [create-fullstack-app write-up](https://devesh-maurya-portfolio.vercel.app/blog/building-create-fullstack-app-cli)
-
-## Changelog
-
-### 2.0.0
-
-**Major release** — plugin + layout generator is the supported architecture; treat this as the baseline for new issues and PRs.
-
-- **Breaking:** Removed the legacy imperative `src/setup/` pipeline and related exports; scaffolding runs only through the wizard → `generate()` pipeline.
-- **CLI:** Correct published `bin` (`dist/bin/create-fullstack-app.js`); optional repo-root `bin/` wrapper delegates to the built CLI after `npm run build`.
-- **Mobile:** Expo defaults to **Expo Router**; React Native CLI defaults to **React Navigation**; explicit wizard choices override defaults.
-- **Tooling:** `VERSION` / `--version` aligned with package version; `.gitignore` includes `*.tgz` for local packs.
-
-### 0.1.4
-
-- Pluggable generator: layouts + plugin `meta` / `file-map` / Handlebars templates; wizard wired to `generate()`.
-- README aligned with current CLI behavior (empty target directory; mobile navigation defaults).
-
-### 0.1.1
-
-- Documentation: full npm README (install, features, usage).
-- Packaging: `README.md` listed in `package.json` `files` so it is always included in the published tarball.
-- Repo: root `.gitignore` for Node/TypeScript builds.
-- CI: GitHub Action to publish to npm on version tags (`v*`), with a check that the git tag matches `package.json` `version`.
-
-### 0.1.0
-
-- Initial public release of the interactive full-stack scaffolding CLI.
-
-## License
-
-MIT
+| Tip | Detail |
+|-----|--------|
+| 📝 **Project name** | The wizard asks for it first. |
+| ⚡ **Defaults** | Use `--yes` / `-y` where supported to accept defaults faster. |
+| 📁 **Target folder** | Must be **missing or empty**. If it already contains files, the CLI exits with an error to avoid overwriting work. |
 
 ---
 
-Package on npm: [`@dartix-software-solutions/create-fullstack-app`](https://www.npmjs.com/package/@dartix-software-solutions/create-fullstack-app) · [Developer](https://devesh-maurya-portfolio.vercel.app/) · [Dartix](https://www.dartix.live/)
+<a id="feature-matrix"></a>
+
+## 🧩 Feature matrix
+
+| Area | What you can choose |
+|------|---------------------|
+| 🏗️ **Layouts** | Monorepo (apps + packages), single repo, or microservices-style tree; Turborepo, Nx, or basic workspace where applicable. |
+| 📦 **Project types** | SaaS, API-only, admin, mobile, full web + API—options depend on structure and scope. |
+| 📌 **Package manager** | npm, pnpm, yarn, or bun. |
+| 🌐 **Web** | Next.js, Vite (React), Remix, Astro, SvelteKit, Vue (Vite), or none. |
+| 📱 **Mobile** | Expo, React Native (CLI), or Flutter. **Expo → Expo Router** and **RN CLI → React Navigation** by default; override in the wizard when both nav options exist. |
+| 🎨 **Styling & UI** | Tailwind, Shadcn UI, MUI, Chakra, Ant Design, Styled Components, or vanilla CSS (stack-dependent). |
+| 🔄 **Client state & data** | TanStack Query, Zustand, Redux Toolkit, Jotai, MobX, or none; forms; Axios / tRPC / GraphQL clients; charts, tables, motion, dates, icons. |
+| ⚙️ **Backends** | NestJS, Express, Fastify, FastAPI, Hono, Koa, Django, Spring Boot, and more. |
+| 🔌 **APIs** | REST, tRPC, GraphQL, gRPC where supported; validation, OpenAPI, CORS, security headers, rate limits. |
+| 🗄️ **Data** | PostgreSQL, MySQL, MongoDB, SQLite, Redis; Prisma, Drizzle, TypeORM, Mongoose, Django ORM, etc. |
+| 🔐 **Auth** | JWT, NextAuth, Clerk, Auth0, Firebase, Supabase, Lucia, and more. |
+| ✅ **Quality & tests** | ESLint, Prettier, Husky, lint-staged, Commitlint, EditorConfig; Jest, Vitest, Cypress, Playwright, Detox, and related plugins. |
+| 🚢 **Ops & deploy** | Docker, Compose, Kubernetes hints, GitHub Actions; Vercel, AWS, Railway, Render, and others. |
+| 🧰 **Backend extras** | Queues, cron, email, uploads, WebSockets, Swagger, and more. |
+| 🤖 **AI (optional)** | Plugins with OpenAI- or cloud-oriented env vars and starter wiring. |
+
+---
+
+<a id="how-it-works"></a>
+
+## 🛠 How it works
+
+Generation is **plugin-driven**: each concern (frontend, backend, auth, testing, …) contributes **metadata**, **dependencies**, and **Handlebars** templates. **Layouts** (single app, monorepo, microservices) decide output paths and how many `package.json` targets you get.
+
+The wizard collects answers, resolves active plugins, runs compatibility checks, then writes everything through **one pipeline**—so new stacks are added by **extending plugins**, not one-off scripts.
+
+---
+
+<a id="requirements"></a>
+
+## 📋 Requirements
+
+- **Node.js 18+** — required for the CLI and for many generated stacks.
+
+---
+
+<a id="links"></a>
+
+## 🔗 Links
+
+| | |
+|--|--|
+| 👤 **Developer** | [Devesh Maurya](https://devesh-maurya-portfolio.vercel.app/) |
+| 🏢 **Dartix** | [dartix.live](https://www.dartix.live/) |
+| 📰 **Blog** | [Building create-fullstack-app (internals, releases)](https://devesh-maurya-portfolio.vercel.app/blog/building-create-fullstack-app-cli) |
+| 📦 **npm** | [`@dartix-software-solutions/create-fullstack-app`](https://www.npmjs.com/package/@dartix-software-solutions/create-fullstack-app) |
+
+---
+
+<a id="help-contributing-contact"></a>
+
+## 💬 Help, contributing & contact
+
+Questions about **requirements**, **usage**, or **contributing** (plugins, docs, bug reports)? Reach out anytime:
+
+**📧 [deveshmaurya1996@gmail.com](mailto:deveshmaurya1996@gmail.com)**
+
+Whether you are stuck on a generated stack, want to propose a feature, or discuss collaboration, send a short note with context (CLI version, OS, and what you tried) and we will go from there.
+
+---
+
+<a id="changelog"></a>
+
+## 📜 Changelog
+
+### 2.0.0
+
+**Major release** — plugin + layout generator is the supported baseline for issues and PRs.
+
+- **Breaking:** Removed the legacy imperative `src/setup/` pipeline; scaffolding runs only through **wizard → `generate()`**.
+- **CLI:** Published `bin` at `dist/bin/create-fullstack-app.js`; optional repo-root `bin/` wrapper runs the built CLI after `npm run build`.
+- **Mobile:** Expo defaults to **Expo Router**; React Native CLI defaults to **React Navigation**; wizard overrides win.
+- **Tooling:** `--version` aligned with package version; `.gitignore` includes `*.tgz`.
+
+### 0.1.4
+
+- Pluggable generator (layouts + plugin `meta` / `file-map` / templates); wizard wired to `generate()`.
+- README behavior notes (empty target dir; mobile navigation defaults).
+
+### 0.1.1
+
+- Full npm README; `README.md` in published `files`.
+- Root `.gitignore` for Node/TS builds.
+- CI publish on `v*` tags with version check.
+
+### 0.1.0
+
+- Initial public interactive scaffolding CLI.
+
+---
+
+<a id="license"></a>
+
+## 📄 License
+
+**MIT**
+
+---
+
+<p align="center">
+  <sub>
+    <a href="https://www.npmjs.com/package/@dartix-software-solutions/create-fullstack-app">npm</a>
+    &nbsp;·&nbsp;
+    <a href="https://devesh-maurya-portfolio.vercel.app/">Developer</a>
+    &nbsp;·&nbsp;
+    <a href="https://www.dartix.live/">Dartix</a>
+  </sub>
+</p>
