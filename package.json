@@ -15,7 +15,10 @@
   ],
   "scripts": {
     "dev": "tsx src/index.ts",
-    "build": "tsup src/index.ts src/bin/create-fullstack-app.ts --format esm --dts --clean",
+    "build": "npm run build:core && npm run build:plugins && npm run build:templates",
+    "build:core": "tsup src/index.ts src/bin/create-fullstack-app.ts --format esm --dts --clean",
+    "build:plugins": "tsup \"src/plugins/**/meta.ts\" \"src/plugins/**/file-map.ts\" --format esm --clean false",
+    "build:templates": "node scripts/copy-plugin-templates.mjs",
     "start": "node dist/index.js",
     "lint": "eslint src/ --ext .ts",
     "format": "prettier --write \"src/**/*.ts\"",
