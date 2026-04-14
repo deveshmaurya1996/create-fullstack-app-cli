@@ -80,11 +80,9 @@ import type {
       if (isFullstack) {
         const feDir = context.hasMobile ? 'mobile' : 'client';
         const scripts: Record<string, string> = {
-          dev: `concurrently "npm run dev:${context.hasMobile ? 'mobile' : 'client'}" "npm run dev:server"`,
-          [`dev:${context.hasMobile ? 'mobile' : 'client'}`]: `cd ${feDir} && npm run dev`,
-          'dev:server': 'cd server && npm run dev',
-          build: `cd ${feDir} && npm run build && cd ../server && npm run build`,
-          lint: `cd ${feDir} && npm run lint && cd ../server && npm run lint`,
+          dev: 'npm run dev --workspaces --if-present --parallel',
+          build: 'npm run build --workspaces --if-present',
+          lint: 'npm run lint --workspaces --if-present',
         };
   
         if (context.hasHusky) {
@@ -98,10 +96,8 @@ import type {
               name: context.projectName,
               version: '0.1.0',
               private: true,
+              workspaces: [feDir, 'server'],
               scripts,
-              devDependencies: {
-                concurrently: '^9.1.0',
-              },
             },
             null,
             2

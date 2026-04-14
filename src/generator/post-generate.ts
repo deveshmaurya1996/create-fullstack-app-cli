@@ -1,5 +1,5 @@
 import { execa } from 'execa';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { TemplateContext } from '../shared/types.js';
 import { logger } from '../shared/logger.js';
@@ -46,7 +46,7 @@ export async function runPostGenerate(
   if (!options.skipInstall) {
     const installCmd = getInstallCommand(context.packageManager);
     const [cmd, ...args] = installCmd.split(' ');
-    const installTargets = getInstallTargets(outputDir, context);
+    const installTargets = await getInstallTargets(outputDir, context);
 
     try {
       for (const target of installTargets) {
@@ -112,22 +112,29 @@ function buildNextSteps(context: TemplateContext, installed: boolean): string[] 
   return steps;
 }
 
-function getInstallTargets(outputDir: string, context: TemplateContext): InstallTarget[] {
-  if (context.isSingleApp && context.isFullstack) {
-    const feDir = context.hasMobile ? 'mobile' : 'client';
-    return [
-      { label: 'root', cwd: outputDir },
-      { label: feDir, cwd: join(outputDir, feDir) },
-      { label: 'server', cwd: join(outputDir, 'server') },
-    ];
+async function getInstallTargets(outputDir: string, context: TemplateContext): Promise<InstallTarget[]> {
+  const packageDirs = await discoverPackageDirs(outputDir);
+  const targets: InstallTarget[] = [];
+
+  for (const dir of packageDirs) {
+    if (!(await hasInstallableDependencies(dir))) continue;
+    targets.push({
+      label: labelForInstallTarget(dir, outputDir, context),
+      cwd: dir,
+    });
   }
 
-  return [{ label: 'project', cwd: outputDir }];
+  // Safety fallback
+  if (targets.length === 0) {
+    targets.push({ label: 'project', cwd: outputDir });
+  }
+
+  return targets;
 }
 
 async function runBootstrapScripts(outputDir: string, context: TemplateContext): Promise<void> {
   const pm = context.packageManager;
-  const installTargets = getInstallTargets(outputDir, context);
+  const installTargets = await getInstallTargets(outputDir, context);
   const safeBootstrapScripts = ['db:generate', 'generate', 'codegen', 'graphql:codegen', 'types:generate'];
 
   for (const target of installTargets) {
@@ -156,5 +163,69 @@ async function runBootstrapScripts(outputDir: string, context: TemplateContext):
     } catch (error) {
       logger.debug(`Bootstrap scripts skipped for ${target.label}: ${(error as Error).message}`);
     }
+  }
+}
+
+async function discoverPackageDirs(outputDir: string): Promise<string[]> {
+  const dirs: string[] = [];
+  await walkForPackageJson(outputDir, outputDir, dirs);
+
+  // Ensure root is first to keep deterministic order
+  const unique = [...new Set(dirs)];
+  unique.sort((a, b) => {
+    if (a === outputDir) return -1;
+    if (b === outputDir) return 1;
+    return a.localeCompare(b);
+  });
+  return unique;
+}
+
+async function walkForPackageJson(root: string, current: string, dirs: string[]): Promise<void> {
+  const entries = await readdir(current, { withFileTypes: true });
+  let hasPackageJson = false;
+
+  for (const entry of entries) {
+    if (entry.isFile() && entry.name === 'package.json') {
+      hasPackageJson = true;
+      break;
+    }
+  }
+
+  if (hasPackageJson) {
+    dirs.push(current);
+  }
+
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    if (entry.name === 'node_modules' || entry.name === '.git') continue;
+    await walkForPackageJson(root, join(current, entry.name), dirs);
+  }
+}
+
+function labelForInstallTarget(targetDir: string, outputDir: string, context: TemplateContext): string {
+  if (targetDir === outputDir) return 'root';
+  if (targetDir === join(outputDir, 'server')) return 'server';
+  if (targetDir === join(outputDir, 'client')) return 'client';
+  if (targetDir === join(outputDir, 'mobile')) return 'mobile';
+
+  const relative = targetDir.slice(outputDir.length + 1).replace(/\\/g, '/');
+  if (relative) return relative;
+
+  return context.projectName;
+}
+
+async function hasInstallableDependencies(cwd: string): Promise<boolean> {
+  try {
+    const packageJsonPath = join(cwd, 'package.json');
+    const raw = await readFile(packageJsonPath, 'utf8');
+    const pkg = JSON.parse(raw) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+    const depsCount = Object.keys(pkg.dependencies ?? {}).length;
+    const devDepsCount = Object.keys(pkg.devDependencies ?? {}).length;
+    return depsCount > 0 || devDepsCount > 0;
+  } catch {
+    return false;
   }
 }

@@ -49,40 +49,42 @@ export function resolveDependencies(
   }
 
   for (const plugin of plugins) {
-    const targetKey = resolveTargetForPlugin(plugin, packageJsonTargets, context);
+    const targetKeys = resolveTargetsForPlugin(plugin, packageJsonTargets, context);
 
-    if (!targetKey) {
+    if (targetKeys.length === 0) {
       logger.warn(
         `Could not resolve target package.json for plugin "${plugin.meta.id}" (category: ${plugin.meta.category})`
       );
       continue;
     }
 
-    const merged = result.get(targetKey);
-    if (!merged) continue;
+    for (const targetKey of targetKeys) {
+      const merged = result.get(targetKey);
+      if (!merged) continue;
 
-    for (const dep of plugin.meta.deps) {
-      if (merged.dependencies[dep.name]) {
-        if (merged.dependencies[dep.name] !== dep.version) {
-          logger.warn(
-            `Dependency version conflict for "${dep.name}": ` +
-            `"${merged.dependencies[dep.name]}" vs "${dep.version}" (from ${plugin.meta.id})`
-          );
+      for (const dep of plugin.meta.deps) {
+        if (merged.dependencies[dep.name]) {
+          if (merged.dependencies[dep.name] !== dep.version) {
+            logger.warn(
+              `Dependency version conflict for "${dep.name}": ` +
+              `"${merged.dependencies[dep.name]}" vs "${dep.version}" (from ${plugin.meta.id})`
+            );
+          }
         }
+        merged.dependencies[dep.name] = dep.version;
       }
-      merged.dependencies[dep.name] = dep.version;
-    }
 
-    for (const dep of plugin.meta.devDeps) {
-      if (merged.devDependencies[dep.name]) {
-        if (merged.devDependencies[dep.name] !== dep.version) {
-          logger.warn(
-            `Dev dependency version conflict for "${dep.name}": ` +
-            `"${merged.devDependencies[dep.name]}" vs "${dep.version}" (from ${plugin.meta.id})`
-          );
+      for (const dep of plugin.meta.devDeps) {
+        if (merged.devDependencies[dep.name]) {
+          if (merged.devDependencies[dep.name] !== dep.version) {
+            logger.warn(
+              `Dev dependency version conflict for "${dep.name}": ` +
+              `"${merged.devDependencies[dep.name]}" vs "${dep.version}" (from ${plugin.meta.id})`
+            );
+          }
         }
+        merged.devDependencies[dep.name] = dep.version;
       }
-      merged.devDependencies[dep.name] = dep.version;
     }
   }
 
@@ -94,6 +96,21 @@ export function resolveDependencies(
   }
 
   return result;
+}
+
+function resolveTargetsForPlugin(
+  plugin: Plugin,
+  packageJsonTargets: PackageJsonLocation[],
+  context: TemplateContext
+): string[] {
+  if (plugin.meta.category === 'devtools' && context.isSingleApp && context.isFullstack) {
+    const frontendTarget = packageJsonTargets.find((t) => t.target === TARGETS.FRONTEND)?.path;
+    const backendTarget = packageJsonTargets.find((t) => t.target === TARGETS.BACKEND)?.path;
+    return [frontendTarget, backendTarget].filter((p): p is string => Boolean(p));
+  }
+
+  const single = resolveTargetForPlugin(plugin, packageJsonTargets, context);
+  return single ? [single] : [];
 }
 
 function resolveTargetForPlugin(
