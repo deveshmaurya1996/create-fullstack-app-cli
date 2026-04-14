@@ -1,8 +1,19 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
+{{#if hasPostgres}}
+import { PrismaPg } from '@prisma/adapter-pg';
+{{/if}}
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+  constructor() {
+    super({
+{{#if hasPostgres}}
+      adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL ?? '' }),
+{{/if}}
+    });
+  }
+
   async onModuleInit(): Promise<void> {
     await this.$connect();
   }

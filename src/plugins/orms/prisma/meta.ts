@@ -6,9 +6,12 @@ const meta: PluginMeta = {
   description: 'Type-safe ORM with auto-generated client, migrations, and studio',
   category: 'orm',
   platformSupport: 'backend-only',
-  deps: [{ name: '@prisma/client', version: '^6.1.0' }],
+  deps: [
+    { name: '@prisma/client', version: '^7.7.0' },
+    { name: '@prisma/adapter-pg', version: '^7.7.0' },
+  ],
   devDeps: [
-    { name: 'prisma', version: '^6.1.0' },
+    { name: 'prisma', version: '^7.7.0' },
     { name: 'tsx', version: '^4.19.0' },
   ],
   envVars: [],

@@ -3,6 +3,7 @@ import type { PluginFileMap, TemplateContext } from '../../../shared/types.js';
 const fileMap: PluginFileMap = {
   files: [
     { template: 'schema.prisma.hbs', outputPath: 'prisma/schema.prisma', target: 'backend' },
+    { template: 'prisma.config.ts.hbs', outputPath: 'prisma.config.ts', target: 'backend' },
     { template: 'seed.ts.hbs', outputPath: 'prisma/seed.ts', target: 'backend' },
     { template: 'db-client.ts.hbs', outputPath: 'src/lib/db.ts', target: 'backend' },
     { template: 'models/user.ts.hbs', outputPath: 'src/models/user.ts', target: 'backend' },

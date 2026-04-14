@@ -80,9 +80,12 @@ import type {
       if (isFullstack) {
         const feDir = context.hasMobile ? 'mobile' : 'client';
         const scripts: Record<string, string> = {
-          dev: 'npm run dev --workspaces --if-present --parallel',
-          build: 'npm run build --workspaces --if-present',
-          lint: 'npm run lint --workspaces --if-present',
+          'dev:client': `npm run dev --prefix ${feDir}`,
+          'dev:server': 'npm run dev --prefix server',
+          'build:client': `npm run build --prefix ${feDir}`,
+          'build:server': 'npm run build --prefix server',
+          'lint:client': `npm run lint --prefix ${feDir}`,
+          'lint:server': 'npm run lint --prefix server',
         };
   
         if (context.hasHusky) {
@@ -96,7 +99,6 @@ import type {
               name: context.projectName,
               version: '0.1.0',
               private: true,
-              workspaces: [feDir, 'server'],
               scripts,
             },
             null,
@@ -116,7 +118,6 @@ import type {
   
       if (isFullstack) {
         const feDir = context.hasMobile ? 'mobile' : 'client';
-        targets.push({ path: 'package.json', target: TARGETS.ROOT, name: context.projectName });
         targets.push({
           path: `${feDir}/package.json`,
           target: TARGETS.FRONTEND,

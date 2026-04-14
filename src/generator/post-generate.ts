@@ -49,6 +49,7 @@ export async function runPostGenerate(
     const installTargets = await getInstallTargets(outputDir, context);
 
     try {
+      let installCount = 0;
       for (const target of installTargets) {
         await withSpinner(
           `Installing ${target.label} dependencies with ${context.packageManager}...`,
@@ -60,9 +61,10 @@ export async function runPostGenerate(
           },
           `${target.label} dependencies installed`
         );
+        installCount += 1;
       }
 
-      installed = true;
+      installed = installCount > 0;
     } catch (error) {
       logger.warn(`Failed to install dependencies: ${(error as Error).message}`);
       logger.info(`You can run "${installCmd}" manually`);
@@ -103,7 +105,13 @@ function buildNextSteps(context: TemplateContext, installed: boolean): string[] 
     }
   }
 
-  steps.push(`Start development: ${pm} run dev`);
+  if (context.isFullstack) {
+    const feDir = context.hasMobile ? 'mobile' : 'client';
+    steps.push(`Start frontend: ${pm} run dev --prefix ${feDir}`);
+    steps.push(`Start backend: ${pm} run dev --prefix server`);
+  } else {
+    steps.push(`Start development: ${pm} run dev`);
+  }
 
   if (context.hasMobile) {
     steps.push("Run on device: Press 'i' for iOS, 'a' for Android, or scan QR code");
@@ -122,11 +130,6 @@ async function getInstallTargets(outputDir: string, context: TemplateContext): P
       label: labelForInstallTarget(dir, outputDir, context),
       cwd: dir,
     });
-  }
-
-  // Safety fallback
-  if (targets.length === 0) {
-    targets.push({ label: 'project', cwd: outputDir });
   }
 
   return targets;
