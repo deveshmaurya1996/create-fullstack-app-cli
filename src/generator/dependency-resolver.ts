@@ -99,8 +99,14 @@ export function resolveDependencies(
 function resolveTargetForPlugin(
   plugin: Plugin,
   packageJsonTargets: PackageJsonLocation[],
-  _context: TemplateContext
+  context: TemplateContext
 ): string | null {
+  const inferredTarget = inferTargetFromPluginOutputs(plugin, context);
+  if (inferredTarget) {
+    const inferredPackage = packageJsonTargets.find((t) => t.target === inferredTarget);
+    if (inferredPackage) return inferredPackage.path;
+  }
+
   const categoryTarget = CATEGORY_TARGET_MAP[plugin.meta.category];
 
   if (!categoryTarget) {
@@ -125,4 +131,26 @@ function resolveTargetForPlugin(
 
   const rootTarget = packageJsonTargets.find((t) => t.target === TARGETS.ROOT);
   return rootTarget?.path || packageJsonTargets[0]?.path || null;
+}
+
+function inferTargetFromPluginOutputs(plugin: Plugin, context: TemplateContext): Target | null {
+  const targets = new Set<Target>();
+
+  for (const entry of plugin.fileMap.files) {
+    if (!entry.when || entry.when(context)) {
+      targets.add(entry.target);
+    }
+  }
+
+  for (const injection of plugin.fileMap.injections) {
+    if (!injection.when || injection.when(context)) {
+      targets.add(injection.target);
+    }
+  }
+
+  if (targets.size === 1) {
+    return [...targets][0];
+  }
+
+  return null;
 }
