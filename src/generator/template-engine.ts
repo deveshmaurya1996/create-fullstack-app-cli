@@ -15,6 +15,10 @@ function ensureHelpers(): void {
 
 const templateCache = new Map<string, HandlebarsTemplateDelegate>();
 
+function protectJsxObjectLiterals(source: string): string {
+  return source.replace(/=\{\{/g, '={{{lbrace}}');
+}
+
 export function renderTemplate(
   templatePath: string,
   context: TemplateContext
@@ -26,7 +30,8 @@ export function renderTemplate(
 
     if (!compiledTemplate) {
       const templateSource = fs.readFileSync(templatePath, 'utf-8');
-      compiledTemplate = Handlebars.compile(templateSource, {
+      const safeSource = protectJsxObjectLiterals(templateSource);
+      compiledTemplate = Handlebars.compile(safeSource, {
         noEscape: true,
         strict: false,
       });
@@ -47,7 +52,8 @@ export function renderTemplateString(
   ensureHelpers();
 
   try {
-    const compiled = Handlebars.compile(templateSource, {
+    const safeSource = protectJsxObjectLiterals(templateSource);
+    const compiled = Handlebars.compile(safeSource, {
       noEscape: true,
       strict: false,
     });

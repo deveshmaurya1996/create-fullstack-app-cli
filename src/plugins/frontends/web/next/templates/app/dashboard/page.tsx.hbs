@@ -18,7 +18,7 @@ export default async function DashboardPage() {
     <div>
       <h1>Dashboard</h1>
       <p>You are signed in.</p>
-      <pre style={{ fontSize: 12 }}>{decodeURIComponent(token.value)}</pre>
+      <pre>{decodeURIComponent(token.value)}</pre>
       <form action={signOut}>
         <button type="submit">Sign out</button>
       </form>

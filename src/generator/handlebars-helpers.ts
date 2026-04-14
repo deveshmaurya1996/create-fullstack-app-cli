@@ -1,6 +1,10 @@
 import type Handlebars from 'handlebars';
 
 export function registerHandlebarsHelpers(hbs: typeof Handlebars): void {
+  hbs.registerHelper('lbrace', function () {
+    return '{';
+  });
+
   hbs.registerHelper('eq', function (a: unknown, b: unknown) {
     return a === b;
   });
