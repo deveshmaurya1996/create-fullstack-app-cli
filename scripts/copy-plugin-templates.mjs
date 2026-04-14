@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..');
 const srcPluginsRoot = path.join(repoRoot, 'src', 'plugins');
-const distPluginsRoot = path.join(repoRoot, 'dist', 'plugins');
+const distRoot = path.join(repoRoot, 'dist');
 
 async function collectTemplateDirs(rootDir) {
   const found = [];
@@ -33,11 +33,11 @@ async function collectTemplateDirs(rootDir) {
 
 async function main() {
   const templateDirs = await collectTemplateDirs(srcPluginsRoot);
-  await mkdir(distPluginsRoot, { recursive: true });
+  await mkdir(distRoot, { recursive: true });
 
   for (const srcTemplateDir of templateDirs) {
     const relPath = path.relative(srcPluginsRoot, srcTemplateDir);
-    const distTemplateDir = path.join(distPluginsRoot, relPath);
+    const distTemplateDir = path.join(distRoot, relPath);
     await mkdir(path.dirname(distTemplateDir), { recursive: true });
     await cp(srcTemplateDir, distTemplateDir, { recursive: true });
   }

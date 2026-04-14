@@ -50,29 +50,26 @@ export async function runWizard(initialName?: string): Promise<WizardResult> {
       continue;
     }
 
-    // Get prompts for current phase
     const phasePrompts = getPromptsForPhase(currentPhase);
-    const visiblePrompts = phasePrompts.filter((p) =>
-      isQuestionVisible(p.id, state.draft)
-    );
-
-    // Skip phase if no visible prompts
-    if (visiblePrompts.length === 0) {
+    const hasAnyVisiblePrompt = phasePrompts.some((p) => isQuestionVisible(p.id, state.draft));
+    if (!hasAnyVisiblePrompt) {
       state = applyNavigation(state, { type: 'next' });
       continue;
     }
 
-    // Print phase header
     printPhaseHeader(currentPhase);
 
-    // Run through visible prompts in this phase
     let promptIndex = 0;
     let phaseCompleted = true;
 
-    while (promptIndex < visiblePrompts.length) {
-      const prompt = visiblePrompts[promptIndex];
+    while (promptIndex < phasePrompts.length) {
+      const prompt = phasePrompts[promptIndex];
 
-      // Skip if already answered (when returning to a phase)
+      if (!isQuestionVisible(prompt.id, state.draft)) {
+        promptIndex++;
+        continue;
+      }
+
       if (
         state.draft[prompt.id as keyof WizardDraft] !== undefined &&
         promptIndex < state.currentPromptIndex
@@ -84,7 +81,6 @@ export async function runWizard(initialName?: string): Promise<WizardResult> {
       try {
         const value = await runPrompt(prompt, state.draft);
 
-        // Apply transform if defined
         const transformedValue = prompt.transform
           ? prompt.transform(value, state.draft)
           : value;
@@ -92,7 +88,6 @@ export async function runWizard(initialName?: string): Promise<WizardResult> {
         state = recordAnswer(state, prompt.id, transformedValue);
         promptIndex++;
       } catch (error) {
-        // User pressed Ctrl+C or escape
         if ((error as Error).message?.includes('User force closed')) {
           state = applyNavigation(state, { type: 'cancel' });
           phaseCompleted = false;
@@ -115,7 +110,6 @@ export async function runWizard(initialName?: string): Promise<WizardResult> {
     };
   }
 
-  // Build final result
   const answers = buildAnswers(state.draft);
   const pluginIds = collectActivePluginIds(answers);
   const activePlugins = pluginRegistry.getPluginsByIds(pluginIds);
@@ -134,16 +128,13 @@ async function handleReviewPhase(
   const pluginIds = collectActivePluginIds(answers);
   const activePlugins = pluginRegistry.getPluginsByIds(pluginIds);
 
-  // Check conflicts
   const conflictResult = checkConflicts(activePlugins);
   const depResult = checkDependencies(activePlugins);
 
-  // Build folder tree preview (simplified for now)
   const folderTree = buildSimplePreview(answers);
 
   const reviewData = buildReviewData(answers, activePlugins, folderTree);
 
-  // Add conflicts and warnings
   if (conflictResult.hasConflicts) {
     reviewData.conflicts = conflictResult.conflicts.map((c) => c.reason);
   }
