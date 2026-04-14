@@ -9,9 +9,9 @@ const meta: PluginMeta = {
   platformSupport: 'web-only',
   deps: [],
   devDeps: [
-    { name: 'tailwindcss', version: '^3.4.16' },
+    { name: 'tailwindcss', version: '^4.1.0' },
+    { name: '@tailwindcss/postcss', version: '^4.1.0' },
     { name: 'postcss', version: '^8.4.49' },
-    { name: 'autoprefixer', version: '^10.4.20' },
   ],
   envVars: [],
   scripts: [],

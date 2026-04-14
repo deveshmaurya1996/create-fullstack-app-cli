@@ -15,16 +15,24 @@ export function SampleForm(): JSX.Element {
       }}
     >
       {({ isSubmitting }) => (
-        <Form style={{ display: 'grid', gap: 12, maxWidth: 360 }}>
-          <label htmlFor="email">Email</label>
-          <Field id="email" name="email" type="email" />
-          <ErrorMessage name="email" component="small" />
+        <Form className="grid max-w-sm gap-3">
+          <label htmlFor="email" className="text-sm font-medium">
+            Email
+          </label>
+          <Field id="email" name="email" type="email" className="rounded border px-3 py-2" />
+          <ErrorMessage name="email" component="small" className="text-sm text-red-600" />
 
-          <label htmlFor="password">Password</label>
-          <Field id="password" name="password" type="password" />
-          <ErrorMessage name="password" component="small" />
+          <label htmlFor="password" className="text-sm font-medium">
+            Password
+          </label>
+          <Field id="password" name="password" type="password" className="rounded border px-3 py-2" />
+          <ErrorMessage name="password" component="small" className="text-sm text-red-600" />
 
-          <button type="submit" disabled={isSubmitting}>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="rounded bg-black px-4 py-2 text-white disabled:opacity-60"
+          >
             {isSubmitting ? 'Submitting...' : 'Submit'}
           </button>
         </Form>
