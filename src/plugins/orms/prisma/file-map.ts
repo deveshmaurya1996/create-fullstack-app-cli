@@ -8,7 +8,7 @@ const fileMap: PluginFileMap = {
     { template: 'models/user.ts.hbs', outputPath: 'src/models/user.ts', target: 'backend' },
     {
       template: 'services/user.service.ts.hbs',
-      outputPath: 'src/services/user.service.ts',
+      outputPath: 'src/services/user.prisma.service.ts',
       target: 'backend',
       when: (ctx: TemplateContext) => ctx.answers.backend !== 'nestjs',
     },

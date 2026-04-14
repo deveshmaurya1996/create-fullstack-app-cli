@@ -4,7 +4,12 @@ const fileMap: PluginFileMap = {
   files: [
     { template: 'next.config.ts.hbs', outputPath: 'next.config.ts', target: 'frontend' },
     { template: 'tsconfig.json.hbs', outputPath: 'tsconfig.json', target: 'frontend' },
-    { template: 'middleware.ts.hbs', outputPath: 'middleware.ts', target: 'frontend', when: (ctx) => ctx.hasAuth },
+    {
+      template: 'middleware.ts.hbs',
+      outputPath: 'middleware.ts',
+      target: 'frontend',
+      when: (ctx) => ctx.hasAuth && ctx.answers.auth === 'jwt-custom',
+    },
 
     { template: 'app/layout.tsx.hbs', outputPath: 'app/layout.tsx', target: 'frontend' },
     { template: 'app/page.tsx.hbs', outputPath: 'app/page.tsx', target: 'frontend' },
