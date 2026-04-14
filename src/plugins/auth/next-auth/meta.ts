@@ -10,8 +10,8 @@ const meta: PluginMeta = {
   deps: [{ name: 'next-auth', version: '^5.0.0-beta.25' }],
   devDeps: [],
   envVars: [
-    { key: 'NEXTAUTH_SECRET', defaultValue: 'change-me', comment: 'NextAuth secret', target: 'root' },
-    { key: 'NEXTAUTH_URL', defaultValue: 'http://localhost:3000', comment: 'NextAuth base URL', target: 'root' },
+    { key: 'AUTH_SECRET', defaultValue: 'change-me', comment: 'Auth.js secret', target: 'root' },
+    { key: 'AUTH_URL', defaultValue: 'http://localhost:3000', comment: 'Auth.js base URL', target: 'root' },
   ],
   scripts: [],
   conflicts: ['jwt-custom', 'clerk', 'lucia'],

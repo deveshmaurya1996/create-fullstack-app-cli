@@ -8,7 +8,7 @@ const fileMap: PluginFileMap = {
       template: 'middleware.ts.hbs',
       outputPath: 'middleware.ts',
       target: 'frontend',
-      when: (ctx) => ctx.hasAuth && ctx.answers.auth === 'jwt-custom',
+      when: (ctx) => ctx.hasAuth && ctx.hasJwtCustom,
     },
 
     { template: 'app/layout.tsx.hbs', outputPath: 'app/layout.tsx', target: 'frontend' },

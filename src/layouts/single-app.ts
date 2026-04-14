@@ -32,13 +32,12 @@ import type {
           if (isFullstack) {
             return joinPaths('server', relativePath);
           }
-          // Backend only — src at root
           return joinPaths('src', relativePath);
         }
   
         case TARGETS.SHARED: {
           if (isFullstack) {
-            return joinPaths('shared', relativePath);
+            return joinPaths('server', 'src', 'shared', relativePath);
           }
           return joinPaths('src', 'shared', relativePath);
         }
@@ -61,7 +60,6 @@ import type {
         dirs.push(`${feDir}/src`);
         dirs.push('server');
         dirs.push('server/src');
-        dirs.push('shared');
       } else if (hasFE) {
         dirs.push('src');
         dirs.push('public');
@@ -158,7 +156,6 @@ import type {
         lines.push('├── server/');
         lines.push('│   ├── src/');
         lines.push('│   └── package.json');
-        lines.push('├── shared/');
       } else if (hasFE) {
         lines.push('├── src/');
         lines.push('├── public/');
