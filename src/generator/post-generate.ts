@@ -1,9 +1,16 @@
 import { execa } from 'execa';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import type { TemplateContext } from '../shared/types.js';
 import { logger } from '../shared/logger.js';
 import { withSpinner } from '../cli/ui/spinner.js';
 import { getInstallCommand } from '../layouts/helpers/package-json-builder.js';
 import { printPostGeneration } from '../cli/ui/banner.js';
+
+type InstallTarget = {
+  label: string;
+  cwd: string;
+};
 
 export async function runPostGenerate(
   outputDir: string,
@@ -39,23 +46,31 @@ export async function runPostGenerate(
   if (!options.skipInstall) {
     const installCmd = getInstallCommand(context.packageManager);
     const [cmd, ...args] = installCmd.split(' ');
+    const installTargets = getInstallTargets(outputDir, context);
 
     try {
-      await withSpinner(
-        `Installing dependencies with ${context.packageManager}...`,
-        async () => {
-          await execa(cmd, args, {
-            cwd: outputDir,
-            stdio: 'pipe',
-          });
-        },
-        'Dependencies installed'
-      );
+      for (const target of installTargets) {
+        await withSpinner(
+          `Installing ${target.label} dependencies with ${context.packageManager}...`,
+          async () => {
+            await execa(cmd, args, {
+              cwd: target.cwd,
+              stdio: 'pipe',
+            });
+          },
+          `${target.label} dependencies installed`
+        );
+      }
+
       installed = true;
     } catch (error) {
       logger.warn(`Failed to install dependencies: ${(error as Error).message}`);
       logger.info(`You can run "${installCmd}" manually`);
     }
+  }
+
+  if (installed) {
+    await runBootstrapScripts(outputDir, context);
   }
 
   const steps = buildNextSteps(context, installed);
@@ -81,7 +96,11 @@ function buildNextSteps(context: TemplateContext, installed: boolean): string[] 
   steps.push('Fill in your environment variable values');
 
   if (context.hasDatabase && context.hasPrisma) {
-    steps.push(`Set up database: ${pm} run db:migrate && ${pm} run db:seed`);
+    if (context.isFullstack) {
+      steps.push(`Set up database: cd server && ${pm} run db:migrate && ${pm} run db:seed`);
+    } else {
+      steps.push(`Set up database: ${pm} run db:migrate && ${pm} run db:seed`);
+    }
   }
 
   steps.push(`Start development: ${pm} run dev`);
@@ -91,4 +110,51 @@ function buildNextSteps(context: TemplateContext, installed: boolean): string[] 
   }
 
   return steps;
+}
+
+function getInstallTargets(outputDir: string, context: TemplateContext): InstallTarget[] {
+  if (context.isSingleApp && context.isFullstack) {
+    const feDir = context.hasMobile ? 'mobile' : 'client';
+    return [
+      { label: 'root', cwd: outputDir },
+      { label: feDir, cwd: join(outputDir, feDir) },
+      { label: 'server', cwd: join(outputDir, 'server') },
+    ];
+  }
+
+  return [{ label: 'project', cwd: outputDir }];
+}
+
+async function runBootstrapScripts(outputDir: string, context: TemplateContext): Promise<void> {
+  const pm = context.packageManager;
+  const installTargets = getInstallTargets(outputDir, context);
+  const safeBootstrapScripts = ['db:generate', 'generate', 'codegen', 'graphql:codegen', 'types:generate'];
+
+  for (const target of installTargets) {
+    try {
+      const packageJsonPath = join(target.cwd, 'package.json');
+      const raw = await readFile(packageJsonPath, 'utf8');
+      const pkg = JSON.parse(raw) as { scripts?: Record<string, string> };
+      const scripts = pkg.scripts ?? {};
+
+      for (const scriptName of safeBootstrapScripts) {
+        if (!scripts[scriptName]) continue;
+
+        const [cmd, ...args] = `${pm} run ${scriptName}`.split(' ');
+
+        await withSpinner(
+          `Running ${target.label}:${scriptName}...`,
+          async () => {
+            await execa(cmd, args, {
+              cwd: target.cwd,
+              stdio: 'pipe',
+            });
+          },
+          `${target.label}:${scriptName} completed`
+        );
+      }
+    } catch (error) {
+      logger.debug(`Bootstrap scripts skipped for ${target.label}: ${(error as Error).message}`);
+    }
+  }
 }
