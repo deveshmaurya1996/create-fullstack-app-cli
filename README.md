@@ -137,6 +137,16 @@ Whether you are stuck on a generated stack, want to propose a feature, or discus
 
 ## 📜 Changelog
 
+### 2.0.15
+
+- **Single-app fullstack installs:** Removed root workspace coupling for this mode; dependencies now install dynamically in real package targets (`client` / `server`) instead of forcing root install behavior.
+- **Script routing:** Fixed script target resolution so devtool scripts (`lint`, `format`) map to frontend/backend package targets when root is not used in single-app fullstack.
+- **Devtool config placement:** ESLint and Prettier config files now generate per package (`client` + `server`) for single-app fullstack, while preserving root behavior for other structures.
+- **Prisma 7 migration:** Updated Prisma plugin to modern setup (`prisma@7`, `@prisma/client@7`, `@prisma/adapter-pg`), added `prisma.config.ts`, removed `datasource.url` from `schema.prisma`, and moved Postgres client creation to adapter-based initialization.
+- **Tailwind latest (web):** Updated Tailwind scaffolding to v4-style setup (`@import "tailwindcss";`, `@tailwindcss/postcss` plugin in PostCSS config) and refreshed content globs for broader framework file coverage.
+- **Formik sample form fix:** Reworked Next.js sample Formik template to avoid fragile inline object-style syntax in `.hbs` and use class-based markup for stable generation.
+- **Template/render stability fixes:** Continued hardening around plugin output mapping and template generation edge cases uncovered in real `npx` runs.
+
 ### 2.0.0
 
 **Major release** — plugin + layout generator is the supported baseline for issues and PRs.
