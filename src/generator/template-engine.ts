@@ -16,7 +16,7 @@ function ensureHelpers(): void {
 const templateCache = new Map<string, HandlebarsTemplateDelegate>();
 
 function protectJsxObjectLiterals(source: string): string {
-  return source.replace(/=\{\{/g, '={{{lbrace}}');
+  return source.replace(/=\{\{/g, '={{"{"}}');
 }
 
 export function renderTemplate(
