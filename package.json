@@ -1,6 +1,6 @@
 {
   "name": "@dartix-software-solutions/create-fullstack-app",
-  "version": "2.0.20",
+  "version": "2.0.21",
   "description": "CLI tool to scaffold full-stack applications with pluggable architecture",
   "type": "module",
   "bin": {
