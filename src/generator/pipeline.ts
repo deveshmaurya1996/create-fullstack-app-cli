@@ -53,7 +53,7 @@ export async function runPipeline(options: GeneratorOptions): Promise<GeneratorR
     const resolvePath = (
       relativePath: string,
       target: Target | string,
-      options?: { pluginCategory?: string; platformSupport?: 'all' | 'web-only' | 'mobile-only' | 'backend-only' }
+      options?: { pluginCategory?: string; platformSupport?: 'all' | 'web-only' | 'mobile-only' | 'backend-only'; templatePath?: string }
     ): string => {
       return layout.resolvePath(relativePath, target as Target, context, options);
     };
@@ -108,6 +108,7 @@ export async function runPipeline(options: GeneratorOptions): Promise<GeneratorR
         const outputPath = resolvePath(entry.outputPath, entry.target, {
           pluginCategory: plugin.meta.category,
           platformSupport: plugin.meta.platformSupport,
+          templatePath: entry.template,
         });
 
         await writer.writeFile(outputPath, content);

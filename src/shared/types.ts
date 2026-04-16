@@ -305,7 +305,7 @@ import type {
       relativePath: string,
       target: Target,
       context?: TemplateContext,
-      options?: { pluginCategory?: string; platformSupport?: PlatformSupport }
+      options?: { pluginCategory?: string; platformSupport?: PlatformSupport; templatePath?: string }
     ): string;
     scaffold(projectName: string, context: TemplateContext): string[];
     rootConfig(context: TemplateContext): FileEntry[];

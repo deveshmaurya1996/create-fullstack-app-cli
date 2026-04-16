@@ -14,7 +14,7 @@ export function detectFileCollisions(
   pathResolver: (
     relativePath: string,
     target: string,
-    options?: { pluginCategory?: string; platformSupport?: 'all' | 'web-only' | 'mobile-only' | 'backend-only' }
+    options?: { pluginCategory?: string; platformSupport?: 'all' | 'web-only' | 'mobile-only' | 'backend-only'; templatePath?: string }
   ) => string
 ): CollisionResult {
   const fileMap = new Map<string, string[]>();
@@ -27,6 +27,7 @@ export function detectFileCollisions(
       const resolvedPath = pathResolver(entry.outputPath, entry.target, {
         pluginCategory: plugin.meta.category,
         platformSupport: plugin.meta.platformSupport,
+        templatePath: entry.template,
       });
 
       if (!fileMap.has(resolvedPath)) {

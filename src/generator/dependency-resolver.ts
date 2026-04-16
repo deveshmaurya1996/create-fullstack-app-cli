@@ -120,7 +120,15 @@ function resolveTargetsForPlugin(
     ]);
 
     if (frontendCategories.has(plugin.meta.category)) {
+      const isMobileExtras =
+        plugin.meta.category === 'frontend-extras' &&
+        plugin.meta.platformSupport === 'all' &&
+        isMobileOnlyDependencySet(plugin);
+
       if (plugin.meta.category === 'frontend-mobile' || plugin.meta.category === 'styling-mobile' || plugin.meta.category === 'mobile-navigation' || plugin.meta.platformSupport === 'mobile-only') {
+        return mobilePath ? [mobilePath] : [];
+      }
+      if (isMobileExtras) {
         return mobilePath ? [mobilePath] : [];
       }
       if (plugin.meta.category === 'frontend-web' || plugin.meta.category === 'styling-web' || plugin.meta.platformSupport === 'web-only') {
@@ -138,6 +146,26 @@ function resolveTargetsForPlugin(
 
   const single = resolveTargetForPlugin(plugin, packageJsonTargets, context);
   return single ? [single] : [];
+}
+
+function isMobileOnlyDependencySet(plugin: Plugin): boolean {
+  const names = [
+    ...plugin.meta.deps.map((d) => d.name),
+    ...plugin.meta.devDeps.map((d) => d.name),
+  ];
+
+  if (names.length === 0) return false;
+  return names.every((name) => isMobileDependency(name));
+}
+
+function isMobileDependency(name: string): boolean {
+  return (
+    name.startsWith('react-native') ||
+    name.startsWith('@react-native/') ||
+    name.startsWith('expo-') ||
+    name === 'expo' ||
+    name === 'lottie-react-native'
+  );
 }
 
 function resolveTargetForPlugin(

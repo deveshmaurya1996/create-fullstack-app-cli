@@ -15,7 +15,7 @@ import type {
     relativePath: string,
     target: Target,
     context?: TemplateContext,
-    _options?: { pluginCategory?: string; platformSupport?: 'all' | 'web-only' | 'mobile-only' | 'backend-only' }
+    _options?: { pluginCategory?: string; platformSupport?: 'all' | 'web-only' | 'mobile-only' | 'backend-only'; templatePath?: string }
   ): string {
       switch (target) {
         case TARGETS.FRONTEND: {

@@ -15,7 +15,7 @@ import type {
       relativePath: string,
       target: Target,
       context?: TemplateContext,
-      options?: { pluginCategory?: string; platformSupport?: 'all' | 'web-only' | 'mobile-only' | 'backend-only' }
+      options?: { pluginCategory?: string; platformSupport?: 'all' | 'web-only' | 'mobile-only' | 'backend-only'; templatePath?: string }
     ): string {
       if (!context) return relativePath;
   
@@ -30,9 +30,16 @@ import type {
             if (context.hasBothPlatforms) {
               const category = options?.pluginCategory;
               const support = options?.platformSupport;
+              const templatePath = options?.templatePath ?? '';
+              const isMobileTemplate = /(^|\/|\\)mobile(\/|\\)/.test(templatePath);
+              const isWebTemplate = /(^|\/|\\)web(\/|\\)/.test(templatePath);
               if (category === 'frontend-mobile' || category === 'styling-mobile' || category === 'mobile-navigation') {
                 feDir = 'mobile';
               } else if (category === 'frontend-web' || category === 'styling-web') {
+                feDir = 'client';
+              } else if (isMobileTemplate) {
+                feDir = 'mobile';
+              } else if (isWebTemplate) {
                 feDir = 'client';
               } else if (support === 'mobile-only') {
                 feDir = 'mobile';
