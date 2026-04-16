@@ -4,11 +4,13 @@ type Props = { name: string; uri?: string; size?: number };
 
 export function Avatar({ name, uri, size = 40 }: Props) {
   const initial = name.trim().charAt(0).toUpperCase() || '?';
+  const imageSource = uri ? { uri } : undefined;
+  const imageStyle = { width: size, height: size, borderRadius: size / 2 };
   if (uri) {
     return (
       <Image
-        source={{ uri }}
-        style={{ width: size, height: size, borderRadius: size / 2 }}
+        source={imageSource}
+        style={imageStyle}
       />
     );
   }

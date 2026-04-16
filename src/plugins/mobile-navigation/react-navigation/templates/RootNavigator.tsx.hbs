@@ -14,6 +14,10 @@ import { StatusBar } from 'expo-status-bar';
 {{/if}}
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+const headerShownOptions = { headerShown: true };
+const noHeaderOptions = { headerShown: false };
+const loginOptions = { title: 'Sign in' };
+const registerOptions = { title: 'Register' };
 
 function RootStack() {
 {{#if hasAuth}}
@@ -24,20 +28,20 @@ function RootStack() {
   }
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: true }}>
+    <Stack.Navigator screenOptions={headerShownOptions}>
       {token ? (
-        <Stack.Screen name="MainTabs" component={TabNavigator} options={{ headerShown: false }} />
+        <Stack.Screen name="MainTabs" component={TabNavigator} options={noHeaderOptions} />
       ) : (
         <>
-          <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'Sign in' }} />
-          <Stack.Screen name="Register" component={RegisterScreen} options={{ title: 'Register' }} />
+          <Stack.Screen name="Login" component={LoginScreen} options={loginOptions} />
+          <Stack.Screen name="Register" component={RegisterScreen} options={registerOptions} />
         </>
       )}
     </Stack.Navigator>
   );
 {{else}}
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator screenOptions={noHeaderOptions}>
       <Stack.Screen name="MainTabs" component={TabNavigator} />
     </Stack.Navigator>
   );

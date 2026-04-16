@@ -39,8 +39,8 @@ export default function LoginScreen() {
       />
       <Input label="Password" secureTextEntry value={password} onChangeText={setPassword} />
       {error ? <Text style={styles.err}>{error}</Text> : null}
-      <Button title="Continue" onPress={() => void onSubmit()} style={{ marginTop: 16 }} />
-      <Pressable onPress={() => navigation.navigate('Register')} style={{ marginTop: 16 }}>
+      <Button title="Continue" onPress={() => void onSubmit()} style={styles.mt16} />
+      <Pressable onPress={() => navigation.navigate('Register')} style={styles.mt16}>
         <Text style={styles.link}>Create account</Text>
       </Pressable>
     </Screen>
@@ -51,4 +51,5 @@ const styles = StyleSheet.create({
   title: { fontSize: 24, fontWeight: '700', marginBottom: 16 },
   err: { color: '#dc2626', marginTop: 8 },
   link: { color: '#2563eb', fontSize: 16 },
+  mt16: { marginTop: 16 },
 });

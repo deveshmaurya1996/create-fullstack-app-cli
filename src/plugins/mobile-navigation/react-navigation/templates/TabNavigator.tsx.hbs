@@ -5,10 +5,11 @@ import SettingsScreen from '../screens/SettingsScreen';
 import type { TabParamList } from './types';
 
 const Tabs = createBottomTabNavigator<TabParamList>();
+const tabHeaderOptions = { headerShown: true };
 
 export function TabNavigator() {
   return (
-    <Tabs.Navigator screenOptions={{ headerShown: true }}>
+    <Tabs.Navigator screenOptions={tabHeaderOptions}>
       <Tabs.Screen name="Home" component={HomeScreen} />
       <Tabs.Screen name="Profile" component={ProfileScreen} />
       <Tabs.Screen name="Settings" component={SettingsScreen} />

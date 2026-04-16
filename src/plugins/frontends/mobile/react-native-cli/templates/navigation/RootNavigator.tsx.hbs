@@ -14,10 +14,14 @@ import { useAuth } from '../hooks/useAuth';
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
+const tabScreenOptions = { headerShown: true };
+const noHeaderOptions = { headerShown: false };
+const loginOptions = { title: 'Sign in' };
+const registerOptions = { title: 'Register' };
 
 function MainTabs() {
   return (
-    <Tab.Navigator screenOptions={{ headerShown: true }}>
+    <Tab.Navigator screenOptions={tabScreenOptions}>
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
@@ -36,18 +40,18 @@ function RootStackScreens() {
   return (
     <RootStack.Navigator>
       {token ? (
-        <RootStack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
+        <RootStack.Screen name="MainTabs" component={MainTabs} options={noHeaderOptions} />
       ) : (
         <>
-          <RootStack.Screen name="Login" component={LoginScreen} options={{ title: 'Sign in' }} />
-          <RootStack.Screen name="Register" component={RegisterScreen} options={{ title: 'Register' }} />
+          <RootStack.Screen name="Login" component={LoginScreen} options={loginOptions} />
+          <RootStack.Screen name="Register" component={RegisterScreen} options={registerOptions} />
         </>
       )}
     </RootStack.Navigator>
   );
 {{else}}
   return (
-    <RootStack.Navigator screenOptions={{ headerShown: false }}>
+    <RootStack.Navigator screenOptions={noHeaderOptions}>
       <RootStack.Screen name="MainTabs" component={MainTabs} />
     </RootStack.Navigator>
   );
