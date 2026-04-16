@@ -13,7 +13,7 @@ const meta: PluginMeta = {
     { name: '@react-navigation/native-stack', version: '^7.1.1' },
     { name: '@react-navigation/bottom-tabs', version: '^7.2.0' },
     { name: 'react-native-screens', version: '^4.3.0' },
-    { name: 'react-native-safe-area-context', version: '^4.12.0' },
+    { name: 'react-native-safe-area-context', version: '^4.14.0' },
   ],
   devDeps: [],
   envVars: [],

@@ -107,7 +107,8 @@ function buildNextSteps(context: TemplateContext, installed: boolean): string[] 
 
   if (context.isFullstack) {
     const feDir = context.hasMobile ? 'mobile' : 'client';
-    steps.push(`Start frontend: ${pm} run dev --prefix ${feDir}`);
+    const frontendScript = context.hasMobile ? 'start' : 'dev';
+    steps.push(`Start frontend: ${pm} run ${frontendScript} --prefix ${feDir}`);
     steps.push(`Start backend: ${pm} run dev --prefix server`);
   } else {
     steps.push(`Start development: ${pm} run dev`);
@@ -138,7 +139,7 @@ async function getInstallTargets(outputDir: string, context: TemplateContext): P
 async function runBootstrapScripts(outputDir: string, context: TemplateContext): Promise<void> {
   const pm = context.packageManager;
   const installTargets = await getInstallTargets(outputDir, context);
-  const safeBootstrapScripts = ['db:generate', 'generate', 'codegen', 'graphql:codegen', 'types:generate'];
+  const safeBootstrapScripts = ['generate', 'codegen', 'graphql:codegen', 'types:generate'];
 
   for (const target of installTargets) {
     try {

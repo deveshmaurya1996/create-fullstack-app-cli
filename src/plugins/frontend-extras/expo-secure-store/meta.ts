@@ -7,7 +7,7 @@ const meta: PluginMeta = {
   description: 'Encrypted key-value secure storage helpers for Expo mobile apps.',
   category: 'frontend-extras',
   platformSupport: 'all',
-  deps: [{ name: 'expo-secure-store', version: '^14.0.1' }],
+  deps: [{ name: 'expo-secure-store', version: '~14.0.0' }],
   devDeps: [],
   envVars: [],
   scripts: [],

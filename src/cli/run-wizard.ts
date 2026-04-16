@@ -2,7 +2,7 @@ import type { WizardAnswers, WizardDraft, Plugin } from '../shared/types.js';
 import type { WizardPhase } from './types.js';
 import { getPromptsForPhase } from './prompt-definitions.js';
 import { isQuestionVisible } from './visibility.js';
-import { runPrompt } from './prompt-runner.js';
+import { BACK_NAVIGATION_VALUE, runPrompt } from './prompt-runner.js';
 import { buildAnswers, collectActivePluginIds } from './build-answers.js';
 import { buildReviewData, showReviewAndConfirm } from './review.js';
 import { createInitialState, applyNavigation, recordAnswer } from './navigation.js';
@@ -80,6 +80,15 @@ export async function runWizard(initialName?: string): Promise<WizardResult> {
 
       try {
         const value = await runPrompt(prompt, state.draft);
+
+        if (
+          value === BACK_NAVIGATION_VALUE ||
+          (Array.isArray(value) && value.includes(BACK_NAVIGATION_VALUE))
+        ) {
+          state = applyNavigation(state, { type: 'back' });
+          phaseCompleted = false;
+          break;
+        }
 
         const transformedValue = prompt.transform
           ? prompt.transform(value, state.draft)
