@@ -11,7 +11,11 @@ export interface CollisionResult {
 export function detectFileCollisions(
   activePlugins: Plugin[],
   context: TemplateContext,
-  pathResolver: (relativePath: string, target: string) => string
+  pathResolver: (
+    relativePath: string,
+    target: string,
+    options?: { pluginCategory?: string; platformSupport?: 'all' | 'web-only' | 'mobile-only' | 'backend-only' }
+  ) => string
 ): CollisionResult {
   const fileMap = new Map<string, string[]>();
 
@@ -20,7 +24,10 @@ export function detectFileCollisions(
       // Check when condition
       if (entry.when && !entry.when(context)) continue;
 
-      const resolvedPath = pathResolver(entry.outputPath, entry.target);
+      const resolvedPath = pathResolver(entry.outputPath, entry.target, {
+        pluginCategory: plugin.meta.category,
+        platformSupport: plugin.meta.platformSupport,
+      });
 
       if (!fileMap.has(resolvedPath)) {
         fileMap.set(resolvedPath, []);

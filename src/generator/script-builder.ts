@@ -20,7 +20,7 @@ export function buildScripts(
 
   for (const plugin of plugins) {
     for (const scriptEntry of plugin.meta.scripts) {
-      const targetPaths = findTargetPaths(scriptEntry.target, packageJsonTargets, context);
+      const targetPaths = findTargetPaths(scriptEntry.target, packageJsonTargets, context, plugin);
 
       if (targetPaths.length === 0) {
         logger.warn(
@@ -52,15 +52,34 @@ export function buildScripts(
 function findTargetPaths(
   target: Target,
   packageJsonTargets: PackageJsonLocation[],
-  context: TemplateContext
+  context: TemplateContext,
+  plugin: Plugin
 ): string[] {
-  const match = packageJsonTargets.find((t) => t.target === target);
-  if (match) return [match.path];
+  if (
+    target === TARGETS.FRONTEND &&
+    context.isSingleApp &&
+    context.isFullstack &&
+    context.hasBothPlatforms
+  ) {
+    const clientPath = packageJsonTargets.find((t) => t.path === 'client/package.json')?.path;
+    const mobilePath = packageJsonTargets.find((t) => t.path === 'mobile/package.json')?.path;
+
+    if (plugin.meta.category === 'frontend-mobile' || plugin.meta.category === 'styling-mobile' || plugin.meta.category === 'mobile-navigation' || plugin.meta.platformSupport === 'mobile-only') {
+      return mobilePath ? [mobilePath] : [];
+    }
+    if (plugin.meta.category === 'frontend-web' || plugin.meta.category === 'styling-web' || plugin.meta.platformSupport === 'web-only') {
+      return clientPath ? [clientPath] : [];
+    }
+    return [clientPath, mobilePath].filter((p): p is string => Boolean(p));
+  }
+
+  const matches = packageJsonTargets.filter((t) => t.target === target).map((t) => t.path);
+  if (matches.length > 0) return matches;
 
   if (target === TARGETS.ROOT && context.isSingleApp && context.isFullstack) {
-    const frontend = packageJsonTargets.find((t) => t.target === TARGETS.FRONTEND)?.path;
+    const frontends = packageJsonTargets.filter((t) => t.target === TARGETS.FRONTEND).map((t) => t.path);
     const backend = packageJsonTargets.find((t) => t.target === TARGETS.BACKEND)?.path;
-    return [frontend, backend].filter((p): p is string => Boolean(p));
+    return [...frontends, backend].filter((p): p is string => Boolean(p));
   }
 
   const root = packageJsonTargets.find((t) => t.target === TARGETS.ROOT);

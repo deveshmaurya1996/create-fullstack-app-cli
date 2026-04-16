@@ -192,10 +192,19 @@ function buildSimplePreview(answers: WizardAnswers): string {
     const hasBE = answers.backendFramework;
 
     if (hasFE && hasBE) {
-      const feDir = answers.mobileFramework ? 'mobile' : 'client';
-      lines.push(`├── ${feDir}/`);
-      lines.push('│   ├── src/');
-      lines.push('│   └── package.json');
+      if (answers.platform === 'both' && answers.webFramework && answers.mobileFramework) {
+        lines.push('├── client/');
+        lines.push('│   ├── src/');
+        lines.push('│   └── package.json');
+        lines.push('├── mobile/');
+        lines.push('│   ├── src/');
+        lines.push('│   └── package.json');
+      } else {
+        const feDir = answers.mobileFramework ? 'mobile' : 'client';
+        lines.push(`├── ${feDir}/`);
+        lines.push('│   ├── src/');
+        lines.push('│   └── package.json');
+      }
       lines.push('├── server/');
       lines.push('│   ├── src/');
       lines.push('│   └── package.json');

@@ -103,10 +103,37 @@ function resolveTargetsForPlugin(
   packageJsonTargets: PackageJsonLocation[],
   context: TemplateContext
 ): string[] {
+  if (context.isSingleApp && context.isFullstack && context.hasBothPlatforms) {
+    const clientPath = packageJsonTargets.find((t) => t.path === 'client/package.json')?.path;
+    const mobilePath = packageJsonTargets.find((t) => t.path === 'mobile/package.json')?.path;
+    const frontendCategories = new Set([
+      'frontend-web',
+      'frontend-mobile',
+      'styling-web',
+      'styling-mobile',
+      'state',
+      'forms',
+      'ui-library',
+      'api-client',
+      'mobile-navigation',
+      'frontend-extras',
+    ]);
+
+    if (frontendCategories.has(plugin.meta.category)) {
+      if (plugin.meta.category === 'frontend-mobile' || plugin.meta.category === 'styling-mobile' || plugin.meta.category === 'mobile-navigation' || plugin.meta.platformSupport === 'mobile-only') {
+        return mobilePath ? [mobilePath] : [];
+      }
+      if (plugin.meta.category === 'frontend-web' || plugin.meta.category === 'styling-web' || plugin.meta.platformSupport === 'web-only') {
+        return clientPath ? [clientPath] : [];
+      }
+      return [clientPath, mobilePath].filter((p): p is string => Boolean(p));
+    }
+  }
+
   if (plugin.meta.category === 'devtools' && context.isSingleApp && context.isFullstack) {
-    const frontendTarget = packageJsonTargets.find((t) => t.target === TARGETS.FRONTEND)?.path;
+    const frontendTargets = packageJsonTargets.filter((t) => t.target === TARGETS.FRONTEND).map((t) => t.path);
     const backendTarget = packageJsonTargets.find((t) => t.target === TARGETS.BACKEND)?.path;
-    return [frontendTarget, backendTarget].filter((p): p is string => Boolean(p));
+    return [...frontendTargets, backendTarget].filter((p): p is string => Boolean(p));
   }
 
   const single = resolveTargetForPlugin(plugin, packageJsonTargets, context);

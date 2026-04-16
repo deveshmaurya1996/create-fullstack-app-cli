@@ -90,8 +90,12 @@ function buildNextSteps(context: TemplateContext, installed: boolean): string[] 
   }
 
   if (context.isFullstack) {
-    const feDir = context.hasMobile ? 'mobile' : 'client';
-    steps.push(`Set up environment: cp ${feDir}/.env.example ${feDir}/.env && cp server/.env.example server/.env`);
+    if (context.hasBothPlatforms) {
+      steps.push('Set up environment: cp client/.env.example client/.env && cp mobile/.env.example mobile/.env && cp server/.env.example server/.env');
+    } else {
+      const feDir = context.hasMobile ? 'mobile' : 'client';
+      steps.push(`Set up environment: cp ${feDir}/.env.example ${feDir}/.env && cp server/.env.example server/.env`);
+    }
   } else {
     steps.push('Set up environment: cp .env.example .env');
   }
@@ -106,9 +110,14 @@ function buildNextSteps(context: TemplateContext, installed: boolean): string[] 
   }
 
   if (context.isFullstack) {
-    const feDir = context.hasMobile ? 'mobile' : 'client';
-    const frontendScript = context.hasMobile ? 'start' : 'dev';
-    steps.push(`Start frontend: ${pm} run ${frontendScript} --prefix ${feDir}`);
+    if (context.hasBothPlatforms) {
+      steps.push(`Start web frontend: ${pm} run dev --prefix client`);
+      steps.push(`Start mobile frontend: ${pm} run start --prefix mobile`);
+    } else {
+      const feDir = context.hasMobile ? 'mobile' : 'client';
+      const frontendScript = context.hasMobile ? 'start' : 'dev';
+      steps.push(`Start frontend: ${pm} run ${frontendScript} --prefix ${feDir}`);
+    }
     steps.push(`Start backend: ${pm} run dev --prefix server`);
   } else {
     steps.push(`Start development: ${pm} run dev`);

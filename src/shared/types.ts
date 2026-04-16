@@ -301,7 +301,12 @@ import type {
   
   export interface LayoutStrategy {
     name: string;
-    resolvePath(relativePath: string, target: Target, context?: TemplateContext): string;
+    resolvePath(
+      relativePath: string,
+      target: Target,
+      context?: TemplateContext,
+      options?: { pluginCategory?: string; platformSupport?: PlatformSupport }
+    ): string;
     scaffold(projectName: string, context: TemplateContext): string[];
     rootConfig(context: TemplateContext): FileEntry[];
     packageJsonTargets(context: TemplateContext): PackageJsonLocation[];

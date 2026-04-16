@@ -12,11 +12,16 @@ export interface ConflictResult {
 
 export function checkConflicts(activePlugins: Plugin[]): ConflictResult {
   const conflicts: ConflictResult['conflicts'] = [];
-  const activeIds = new Set(activePlugins.map((p) => p.meta.id));
+  const activeById = new Map(activePlugins.map((p) => [p.meta.id, p]));
 
   for (const plugin of activePlugins) {
     for (const conflictId of plugin.meta.conflicts) {
-      if (activeIds.has(conflictId)) {
+      const conflictingPlugin = activeById.get(conflictId);
+      if (conflictingPlugin) {
+        if (isCrossPlatformFrontendPair(plugin, conflictingPlugin)) {
+          continue;
+        }
+
         const existing = conflicts.find(
           (c) =>
             (c.pluginA === plugin.meta.id && c.pluginB === conflictId) ||
@@ -27,7 +32,7 @@ export function checkConflicts(activePlugins: Plugin[]): ConflictResult {
           conflicts.push({
             pluginA: plugin.meta.id,
             pluginB: conflictId,
-            reason: `"${plugin.meta.label}" conflicts with "${conflictId}"`,
+            reason: `"${plugin.meta.label}" conflicts with "${conflictingPlugin.meta.label}"`,
           });
         }
       }
@@ -38,6 +43,15 @@ export function checkConflicts(activePlugins: Plugin[]): ConflictResult {
     hasConflicts: conflicts.length > 0,
     conflicts,
   };
+}
+
+function isCrossPlatformFrontendPair(pluginA: Plugin, pluginB: Plugin): boolean {
+  const a = pluginA.meta.category;
+  const b = pluginB.meta.category;
+  return (
+    (a === 'frontend-web' && b === 'frontend-mobile') ||
+    (a === 'frontend-mobile' && b === 'frontend-web')
+  );
 }
 
 export function assertNoConflicts(activePlugins: Plugin[]): void {

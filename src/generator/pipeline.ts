@@ -50,8 +50,12 @@ export async function runPipeline(options: GeneratorOptions): Promise<GeneratorR
     const layout = getLayout(context.structure);
 
     logStep(3, 'Setting up path resolver...');
-    const resolvePath = (relativePath: string, target: Target | string): string => {
-      return layout.resolvePath(relativePath, target as Target, context);
+    const resolvePath = (
+      relativePath: string,
+      target: Target | string,
+      options?: { pluginCategory?: string; platformSupport?: 'all' | 'web-only' | 'mobile-only' | 'backend-only' }
+    ): string => {
+      return layout.resolvePath(relativePath, target as Target, context, options);
     };
 
     logStep(4, 'Validating plugin compatibility...');
@@ -101,7 +105,10 @@ export async function runPipeline(options: GeneratorOptions): Promise<GeneratorR
 
         const templatePath = path.join(plugin.templateDir, entry.template);
         const content = renderTemplate(templatePath, context);
-        const outputPath = resolvePath(entry.outputPath, entry.target);
+        const outputPath = resolvePath(entry.outputPath, entry.target, {
+          pluginCategory: plugin.meta.category,
+          platformSupport: plugin.meta.platformSupport,
+        });
 
         await writer.writeFile(outputPath, content);
       }

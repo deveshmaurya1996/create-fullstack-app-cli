@@ -70,8 +70,13 @@ export function buildAllEnvFiles(
 
     if (!content) continue;
 
-    const envPath = pathResolver('.env.example', target);
-    files.set(envPath, content);
+    if (target === TARGETS.FRONTEND && context.isSingleApp && context.isFullstack && context.hasBothPlatforms) {
+      files.set('client/.env.example', content);
+      files.set('mobile/.env.example', content);
+    } else {
+      const envPath = pathResolver('.env.example', target);
+      files.set(envPath, content);
+    }
   }
 
   return files;

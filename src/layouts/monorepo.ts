@@ -11,7 +11,12 @@ import type {
   export class MonorepoLayout implements LayoutStrategy {
     name = 'monorepo';
   
-    resolvePath(relativePath: string, target: Target, context?: TemplateContext): string {
+  resolvePath(
+    relativePath: string,
+    target: Target,
+    context?: TemplateContext,
+    _options?: { pluginCategory?: string; platformSupport?: 'all' | 'web-only' | 'mobile-only' | 'backend-only' }
+  ): string {
       switch (target) {
         case TARGETS.FRONTEND: {
           if (context?.hasBothPlatforms) {

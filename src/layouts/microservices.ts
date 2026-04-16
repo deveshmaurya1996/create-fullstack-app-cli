@@ -11,7 +11,12 @@ import type {
   export class MicroservicesLayout implements LayoutStrategy {
     name = 'microservices';
   
-    resolvePath(relativePath: string, target: Target, context?: TemplateContext): string {
+  resolvePath(
+    relativePath: string,
+    target: Target,
+    context?: TemplateContext,
+    _options?: { pluginCategory?: string; platformSupport?: 'all' | 'web-only' | 'mobile-only' | 'backend-only' }
+  ): string {
       switch (target) {
         case TARGETS.FRONTEND: {
           if (context?.hasMobile) {

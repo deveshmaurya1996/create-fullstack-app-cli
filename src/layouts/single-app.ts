@@ -11,7 +11,12 @@ import type {
   export class SingleAppLayout implements LayoutStrategy {
     name = 'single-app';
   
-    resolvePath(relativePath: string, target: Target, context?: TemplateContext): string {
+    resolvePath(
+      relativePath: string,
+      target: Target,
+      context?: TemplateContext,
+      options?: { pluginCategory?: string; platformSupport?: 'all' | 'web-only' | 'mobile-only' | 'backend-only' }
+    ): string {
       if (!context) return relativePath;
   
       const hasFE = context.hasFrontend;
@@ -21,7 +26,20 @@ import type {
       switch (target) {
         case TARGETS.FRONTEND: {
           if (isFullstack) {
-            const feDir = context.hasMobile ? 'mobile' : 'client';
+            let feDir = context.hasBothPlatforms ? 'client' : context.hasMobile ? 'mobile' : 'client';
+            if (context.hasBothPlatforms) {
+              const category = options?.pluginCategory;
+              const support = options?.platformSupport;
+              if (category === 'frontend-mobile' || category === 'styling-mobile' || category === 'mobile-navigation') {
+                feDir = 'mobile';
+              } else if (category === 'frontend-web' || category === 'styling-web') {
+                feDir = 'client';
+              } else if (support === 'mobile-only') {
+                feDir = 'mobile';
+              } else if (support === 'web-only') {
+                feDir = 'client';
+              }
+            }
             return joinPaths(feDir, relativePath);
           }
           // Frontend only — src at root
@@ -55,9 +73,16 @@ import type {
       const isFullstack = hasFE && hasBE;
   
       if (isFullstack) {
-        const feDir = context.hasMobile ? 'mobile' : 'client';
-        dirs.push(feDir);
-        dirs.push(`${feDir}/src`);
+        if (context.hasBothPlatforms) {
+          dirs.push('client');
+          dirs.push('client/src');
+          dirs.push('mobile');
+          dirs.push('mobile/src');
+        } else {
+          const feDir = context.hasMobile ? 'mobile' : 'client';
+          dirs.push(feDir);
+          dirs.push(`${feDir}/src`);
+        }
         dirs.push('server');
         dirs.push('server/src');
       } else if (hasFE) {
@@ -78,15 +103,19 @@ import type {
   
       // Root package.json
       if (isFullstack) {
-        const feDir = context.hasMobile ? 'mobile' : 'client';
         const scripts: Record<string, string> = {
-          'dev:client': `npm run dev --prefix ${feDir}`,
+          'dev:client': 'npm run dev --prefix client',
           'dev:server': 'npm run dev --prefix server',
-          'build:client': `npm run build --prefix ${feDir}`,
+          'build:client': 'npm run build --prefix client',
           'build:server': 'npm run build --prefix server',
-          'lint:client': `npm run lint --prefix ${feDir}`,
+          'lint:client': 'npm run lint --prefix client',
           'lint:server': 'npm run lint --prefix server',
         };
+        if (context.hasBothPlatforms) {
+          scripts['dev:mobile'] = 'npm run start --prefix mobile';
+          scripts['build:mobile'] = 'npm run build --prefix mobile';
+          scripts['lint:mobile'] = 'npm run lint --prefix mobile';
+        }
   
         if (context.hasHusky) {
           scripts.prepare = 'husky';
@@ -117,12 +146,25 @@ import type {
       const isFullstack = hasFE && hasBE;
   
       if (isFullstack) {
-        const feDir = context.hasMobile ? 'mobile' : 'client';
-        targets.push({
-          path: `${feDir}/package.json`,
-          target: TARGETS.FRONTEND,
-          name: `${context.projectName}-${context.hasMobile ? 'mobile' : 'client'}`,
-        });
+        if (context.hasBothPlatforms) {
+          targets.push({
+            path: 'client/package.json',
+            target: TARGETS.FRONTEND,
+            name: `${context.projectName}-client`,
+          });
+          targets.push({
+            path: 'mobile/package.json',
+            target: TARGETS.FRONTEND,
+            name: `${context.projectName}-mobile`,
+          });
+        } else {
+          const feDir = context.hasMobile ? 'mobile' : 'client';
+          targets.push({
+            path: `${feDir}/package.json`,
+            target: TARGETS.FRONTEND,
+            name: `${context.projectName}-${context.hasMobile ? 'mobile' : 'client'}`,
+          });
+        }
         targets.push({
           path: 'server/package.json',
           target: TARGETS.BACKEND,
@@ -146,10 +188,19 @@ import type {
       lines.push(`${context.projectName}/`);
   
       if (isFullstack) {
-        const feDir = context.hasMobile ? 'mobile' : 'client';
-        lines.push(`├── ${feDir}/`);
-        lines.push('│   ├── src/');
-        lines.push('│   └── package.json');
+        if (context.hasBothPlatforms) {
+          lines.push('├── client/');
+          lines.push('│   ├── src/');
+          lines.push('│   └── package.json');
+          lines.push('├── mobile/');
+          lines.push('│   ├── src/');
+          lines.push('│   └── package.json');
+        } else {
+          const feDir = context.hasMobile ? 'mobile' : 'client';
+          lines.push(`├── ${feDir}/`);
+          lines.push('│   ├── src/');
+          lines.push('│   └── package.json');
+        }
         lines.push('├── server/');
         lines.push('│   ├── src/');
         lines.push('│   └── package.json');
